@@ -5,6 +5,11 @@ export default defineConfig({
   plugins: [react()],
   build: {
     sourcemap: false,
-    chunkSizeWarningLimit: 1000,
+    cssCodeSplit: true,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
   },
 });
