@@ -25,9 +25,8 @@ import BlockedList from "../Pages/BlockedList/BlockedList";
 import ChangePass from "../Pages/AdminProfile/ChangePass";
 import AdsSetup from "../Pages/AdsSetup/AdsSetup";
 import ActivityEvents from "../Pages/Activity & Events/ActivityEvents";
-import VenueListingApproval from "../Pages/Venue & Service/VenueListingApproval";
-import VenueApproval from "../Components/VenueandService/VenueDetails";
-import Veneudetails from "../Pages/Venue & Service/veneudetails";
+
+
 import AddEmployee from "../Pages/AddEmployee/AddEmployee";
 import ProjectTable from "../Pages/Project/Project";
 import BuildingFloorLayout from "../Pages/ProjectDetails/ProjectDetails";
@@ -84,8 +83,7 @@ export const router = createBrowserRouter([
           { path: "/settings/forget-password", element: <ForgotPassword /> },
           { path: "/settings/email-verification", element: <EmailVerification /> },
           { path: "/messages", element: <AllMessages /> },
-          { path: "/venueandservice", element: <VenueListingApproval /> },
-          { path: "/venueandservice/venuedetails/:id", element: <Veneudetails/> },
+    
         ],
       },
     ],
