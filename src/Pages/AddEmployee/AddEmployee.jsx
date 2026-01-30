@@ -34,7 +34,7 @@ export default function AddEmployee() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
+    <div className="pt-16 bg-gray-50  flex items-center justify-center">
       <div className="w-full  bg-white border border-gray-200 rounded-lg overflow-hidden">
         {/* Header */}
         <div className="bg-blue-500 px-6 py-4">
@@ -42,7 +42,7 @@ export default function AddEmployee() {
         </div>
 
         {/* Form Content */}
-        <div className="p-6 space-y-5">
+        <div className="px-6 space-y-5">
           {/* Name Field */}
           <div>
             <label className="block text-gray-700 text-sm font-medium mb-2">

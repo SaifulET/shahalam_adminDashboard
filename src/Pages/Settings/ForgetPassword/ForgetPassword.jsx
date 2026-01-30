@@ -10,7 +10,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-start justify-center p-4 mt-20">
+    <div className="min-h-screen bg-gray-50 flex items-start justify-center py-4 mt-20">
       <div className="w-full ">
         {/* Header */}
         <div className="bg-blue-500 text-white p-4 rounded-t-lg flex items-center">

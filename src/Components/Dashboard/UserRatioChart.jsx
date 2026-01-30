@@ -30,7 +30,7 @@ export default function ProjectsDashboard() {
   ];
 
   return (
-    <div className=" bg-gray-50 p-8">
+    <div className=" bg-gray-50 py-8">
       <div className="">
         {/* Stats Section */}
         <div className="bg-white rounded-2xl shadow-sm p-8 mb-8">

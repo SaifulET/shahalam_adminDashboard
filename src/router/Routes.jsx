@@ -45,6 +45,7 @@ import AdminForgotPassword from "../Pages/SuperAdminAuth/ForgetPassword/ForgetPa
 import AdminRoute from "./AdminRoute";
 import AdminMainLayout from "../Pages/SuperAdminAuth/Main";
 import AdminEmailVerification from "../Pages/SuperAdminAuth/OTP/EmailVerification";
+import AdminChangePassword from "../Pages/SuperAdminAuth/Dashboard/ChangePass";
 export const router = createBrowserRouter([
   {
     path: "/sign-in",
@@ -133,7 +134,7 @@ export const router = createBrowserRouter([
 
         { path: "settings", element: <AdminSettings /> },
         { path: "settings/forget-password", element: <AdminForgotPassword /> },
-        { path: "settings/change-password", element: <ChangePassword /> },
+        { path: "settings/change-password", element: <AdminChangePassword /> },
         { path: "settings/email-verification", element: <AdminEmailVerification /> },
 
       ],

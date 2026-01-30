@@ -93,7 +93,7 @@ const users = Array.from({ length: 20 }, (_, i) => {
   }
 
   return (
-    <div className="min-h-screen p-4 bg-gray-50">
+    <div className="min-h-screen py-4 bg-gray-50">
       <div
         style={{ boxShadow: "0px 1px 6px 0px rgba(0, 0, 0, 0.24)" }}
         className="mx-auto mt-16"

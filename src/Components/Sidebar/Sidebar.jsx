@@ -52,7 +52,8 @@ const Sidebar = () => {
 
       <div className="flex-1 text-center  justify-center  w-full ">
         {menuItems.map((item) => {
-          const isActive = location.pathname === item.Link;
+         const isActive = location.pathname.startsWith(item.Link);
+
 
           return (
             <div key={item.label}>

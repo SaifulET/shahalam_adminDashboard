@@ -69,7 +69,7 @@ const ProjectTable = () => {
 
   return (
     <div className='min-h-screen mt-16'>
-        <div className="w-full  p-4">
+        <div className="w-full  py-4">
       <div className="border border-gray-200 rounded-lg overflow-hidden">
         {/* Header */}
         <div className="bg-blue-500 text-white">

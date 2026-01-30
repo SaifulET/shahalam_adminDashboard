@@ -44,7 +44,7 @@ const arrowback=()=>{
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-start justify-center p-4 mt-20">
+    <div className="min-h-screen bg-gray-100 flex items-start justify-center py-4 mt-20">
       <div className="w-full  bg-white rounded-lg shadow-sm overflow-hidden mt-8">
         {/* Header */}
         <div className="bg-blue-500 px-6 py-4 flex items-center">

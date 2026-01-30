@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-const  ChangePassword = () => {
+const  AdminChangePassword = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -18,15 +18,15 @@ const  ChangePassword = () => {
     }
     console.log('Password change submitted');
     // Handle password change logic here
-    navigate("/settings")
+    navigate("/admin/settings")
   };
   const handleback = (e) => {
    e.preventDefault()
-    navigate("/settings")
+    navigate("/admin/settings")
   };
 
   return (
-    <div className="min-h-screen py-6 bg-gray-50">
+    <div className="min-h-screen p-6 bg-gray-50">
       <div  style={{ boxShadow: "0px 1px 6px 0px rgba(0, 0, 0, 0.24)" }}
         className="mx-auto mt-16 rounded-2xl">
         {/* Header */}
@@ -107,7 +107,7 @@ const  ChangePassword = () => {
               </button>
             </div>
           </div>
-          <Link to='/settings/forget-password' className='underline text-blue-500 text-right'>Forget Password</Link>
+          <Link to='/admin/settings/forget-password' className='underline text-blue-500 text-right'>Forget Password</Link>
 
 
 
@@ -124,4 +124,4 @@ const  ChangePassword = () => {
   );
 }
 
-export default ChangePassword;
+export default AdminChangePassword;
