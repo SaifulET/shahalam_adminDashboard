@@ -25,13 +25,26 @@ import BlockedList from "../Pages/BlockedList/BlockedList";
 import ChangePass from "../Pages/AdminProfile/ChangePass";
 import AdsSetup from "../Pages/AdsSetup/AdsSetup";
 import ActivityEvents from "../Pages/Activity & Events/ActivityEvents";
-
+import AdminSignIn from "../Pages/SuperAdminAuth/Auth/SignIn/SignIn"
+import AdminForgatePassword from "../Pages/SuperAdminAuth/Auth/ForgatePassword/ForgatePassword"
+import AdminVerifyCode from "../Pages/SuperAdminAuth/Auth/VerifyCode/VerifyCode"
+import AdminNewPass from "../Pages/SuperAdminAuth/Auth/NewPass/NewPass"
+import AdminDashboard from "../Pages/SuperAdminAuth/Dashboard/Dashboard/Dashboard";
 
 import AddEmployee from "../Pages/AddEmployee/AddEmployee";
 import ProjectTable from "../Pages/Project/Project";
 import BuildingFloorLayout from "../Pages/ProjectDetails/ProjectDetails";
 import ForgotPassword from "../Pages/Settings/ForgetPassword/ForgetPassword";
 import EmailVerification from "../Pages/Settings/OTP/EmailVerification";
+import AdminManagementPage from "../Pages/Admin/Admin";
+import AdminList from "../Pages/SuperAdminAuth/Dashboard/AdminList/AdminList";
+import AdminBlockedList from "../Pages/SuperAdminAuth/AdminBlockedList/AdminBlockedList";
+import AdminSettings from "../Pages/SuperAdminAuth/Dashboard/Settings";
+import ChangePassword from "../Pages/AdminProfile/ChangePass";
+import AdminForgotPassword from "../Pages/SuperAdminAuth/ForgetPassword/ForgetPassword";
+import AdminRoute from "./AdminRoute";
+import AdminMainLayout from "../Pages/SuperAdminAuth/Main";
+import AdminEmailVerification from "../Pages/SuperAdminAuth/OTP/EmailVerification";
 export const router = createBrowserRouter([
   {
     path: "/sign-in",
@@ -50,6 +63,22 @@ export const router = createBrowserRouter([
     element: <NewPass />,
   },
   {
+    path: "/admin/sign-in",
+    element: <AdminSignIn />,
+  },
+  {
+    path: "/admin/forgate-password",
+    element: <AdminForgatePassword />,
+  },
+  {
+    path: "/admin/verify-code",
+    element: <AdminVerifyCode />,
+  },
+  {
+    path: "/admin/new-password",
+    element: <AdminNewPass />,
+  },
+  {
     element: <PrivateRoute />,
     children: [
       {
@@ -59,6 +88,7 @@ export const router = createBrowserRouter([
           { path: "/", element: <Dashboard /> },
           { path: "/dashboard", element: <Dashboard /> },
           { path: "/employee", element: <UserList /> },
+
           { path: "/project", element: <ProjectTable /> },
           { path: "/add-employee", element: <AddEmployee /> },
           { path: "/block-list", element: <BlockedList /> },
@@ -75,12 +105,12 @@ export const router = createBrowserRouter([
             { path: "/activity&events", element: <ActivityEvents /> },
           { path: "/notifications", element: <Notifications /> },
           { path: "/settings", element: <Settings /> },
-          { path: "/settings/about-us", element: <AboutUs /> },
-          { path: "/settings/privacy-policy", element: <PrivacyPolicy /> },
-          { path: "/settings/terms-condition", element: <TermsCondition /> },
+         
           { path: "/settings/profile", element: <ProfilePage /> },
           { path: "/settings/change-password", element: <ChangePass /> },
+        
           { path: "/settings/forget-password", element: <ForgotPassword /> },
+         
           { path: "/settings/email-verification", element: <EmailVerification /> },
           { path: "/messages", element: <AllMessages /> },
     
@@ -88,4 +118,27 @@ export const router = createBrowserRouter([
       },
     ],
   },
+ {
+  element: <AdminRoute />,
+  children: [
+    {
+      path: "/admin",
+      element: <AdminMainLayout />,
+      children: [
+        { index: true, element: <AdminDashboard /> },
+        { path: "dashboard", element: <AdminDashboard /> },
+        { path: "admin", element: <AdminList /> },
+        { path: "add-admin", element: <AddEmployee /> },
+        { path: "block-list", element: <AdminBlockedList /> },
+
+        { path: "settings", element: <AdminSettings /> },
+        { path: "settings/forget-password", element: <AdminForgotPassword /> },
+        { path: "settings/change-password", element: <ChangePassword /> },
+        { path: "settings/email-verification", element: <AdminEmailVerification /> },
+
+      ],
+    },
+  ],
+}
+
 ]);

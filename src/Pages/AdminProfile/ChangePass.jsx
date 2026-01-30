@@ -18,11 +18,11 @@ const  ChangePassword = () => {
     }
     console.log('Password change submitted');
     // Handle password change logic here
-    navigate("/settings")
+    navigate("/admin/settings")
   };
   const handleback = (e) => {
    e.preventDefault()
-    navigate("/settings")
+    navigate("/admin/settings")
   };
 
   return (
@@ -107,7 +107,7 @@ const  ChangePassword = () => {
               </button>
             </div>
           </div>
-          <Link to='/settings/forget-password' className='underline text-blue-500 text-right'>Forget Password</Link>
+          <Link to='/admin/settings/forget-password' className='underline text-blue-500 text-right'>Forget Password</Link>
 
 
 
