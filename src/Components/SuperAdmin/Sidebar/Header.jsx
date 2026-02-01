@@ -47,7 +47,7 @@ const AdminHeader = ({ showDrawer }) => {
 
 
           {/* Profile Icon */}
-          <Link to="/settings/profile" >
+          <Link to="/admin/settings/profile" >
           <div className="p-2 text-blue-700 transition border border-blue-500 rounded-full hover:bg-blue-50">
             <img
               src={adminImage}

@@ -32,7 +32,7 @@ export default function ForgotPassword() {
           </button>
           </Link>
         
-          <h1 className="text-2xl font-medium">Forgot Password</h1>
+          <h1 className="text-2xl font-medium">Forget Password</h1>
         </div>
 
         {/* Content */}

@@ -17,26 +17,34 @@ function EditProfile() {
           <label className="mb-2 text-xl font-bold text-balck">
             User Name
           </label>
-          <input
-            type="text"
-            name="fullName"
-            value={userData.name}
-            className="w-full px-5 py-3 text-[#5C5C5C] bg-white border-2 border-white rounded-md outline-none placeholder:text-xl"
-            placeholder="Enter full name"
-            required
-          />
+         <input
+  type="text"
+  name="fullName"
+  value={userData.fullName}
+  onChange={(e) =>
+    setUserData({ ...userData, fullName: e.target.value })
+  }
+  className="w-full px-5 py-3 text-[#5C5C5C] bg-white border-2 border-white rounded-md outline-none placeholder:text-xl"
+  placeholder="Enter full name"
+  required
+/>
+
         </div>
 
         <div>
           <label className="mb-2 text-xl font-bold text-black">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={userData.email}
-            className="w-full px-5 py-3 mt-5 text-[#5C5C5C] bg-white border-2 border-white rounded-md placeholder:text-xl"
-            placeholder="Enter Email"
-            required
-          />
+         <input
+  type="email"
+  name="email"
+  value={userData.email}
+  onChange={(e) =>
+    setUserData({ ...userData, email: e.target.value })
+  }
+  className="w-full px-5 py-3 mt-5 text-[#5C5C5C] bg-white border-2 border-white rounded-md placeholder:text-xl"
+  placeholder="Enter Email"
+  required
+/>
+
         </div>
 
         <div>
@@ -44,13 +52,19 @@ function EditProfile() {
             Contact No
           </label>
           <input
-            type="number"
-            value={userData.number}
-            name="number"
-            className="w-full px-5 py-3 mt-5 text-[#5C5C5C] bg-white  border-2 border-white  rounded-md placeholder:text-xl"
-            placeholder="Contact No"
-            required
-          />
+  type="text"
+  inputMode="numeric"
+  pattern="[0-9]*"
+  value={userData.number}
+  name="number"
+  onChange={(e) =>
+    setUserData({ ...userData, number: e.target.value })
+  }
+  placeholder="Contact No"
+   className="w-full px-5 py-3 mt-5 text-[#5C5C5C] bg-white  border-2 border-white  rounded-md placeholder:text-xl"
+  required
+/>
+
         </div>
     
         <div className="py-3 text-center">

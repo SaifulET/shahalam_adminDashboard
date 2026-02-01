@@ -79,7 +79,7 @@ const AdminSignIn = () => {
                 </Form.Item>
                 <Link to="/admin/forgate-password" className="">
                   <p className="text-red-600 hover:text-red-600 text-md ">
-                    Forgate Password
+                    Forget Password
                   </p>
                 </Link>
               </div>

@@ -65,7 +65,7 @@ const SuperAdminRecentUsersTable = () => {
       <div style={{ boxShadow: "0px 1px 6px 0px rgba(0, 0, 0, 0.24)" }} className="rounded-lg">
         {/*============================= Header============================= */}
         <div className="px-6 py-4 mb-6 rounded-tl-lg rounded-tr-lg">
-          <h1 className="text-2xl font-semibold">Recent Employee</h1>
+          <h1 className="text-2xl font-semibold">Recent Admin</h1>
         </div>
 
         {/* =============================Table =============================*/}

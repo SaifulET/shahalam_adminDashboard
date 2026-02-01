@@ -75,7 +75,7 @@ const ProjectTable = () => {
         <div className="bg-blue-500 text-white">
           <div className="grid grid-cols-6 gap-4 px-6 py-4 font-medium">
             <div>S.ID</div>
-            <div>Project Name</div>
+            <div>Company Name</div>
             <div>Location</div>
             <div>Status</div>
             <div>Created Date</div>

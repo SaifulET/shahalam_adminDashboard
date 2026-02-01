@@ -41,7 +41,7 @@ export default function ProjectsDashboard() {
             </div>
             <div className="text-center border-l border-gray-200">
               <h2 className="font-poppins font-bold text-[28px] leading-[34px] tracking-[0px] text-gray-900 mb-2">10</h2>
-              <p className="text-gray-600 text-lg">Active Employ</p>
+              <p className="text-gray-600 text-lg">Active Employee</p>
             </div>
           </div>
         </div>

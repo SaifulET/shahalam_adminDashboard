@@ -46,6 +46,9 @@ import AdminRoute from "./AdminRoute";
 import AdminMainLayout from "../Pages/SuperAdminAuth/Main";
 import AdminEmailVerification from "../Pages/SuperAdminAuth/OTP/EmailVerification";
 import AdminChangePassword from "../Pages/SuperAdminAuth/Dashboard/ChangePass";
+import AddAdmin from "../Pages/SuperAdminAuth/AddAdmin/AddAdmin";
+import Profile from "../Pages/AdminProfile/Profile";
+import CompanyProfile from "../Pages/Profile/Profile";
 export const router = createBrowserRouter([
   {
     path: "/sign-in",
@@ -107,7 +110,7 @@ export const router = createBrowserRouter([
           { path: "/notifications", element: <Notifications /> },
           { path: "/settings", element: <Settings /> },
          
-          { path: "/settings/profile", element: <ProfilePage /> },
+          { path: "/settings/profile", element: <CompanyProfile /> },
           { path: "/settings/change-password", element: <ChangePass /> },
         
           { path: "/settings/forget-password", element: <ForgotPassword /> },
@@ -129,13 +132,15 @@ export const router = createBrowserRouter([
         { index: true, element: <AdminDashboard /> },
         { path: "dashboard", element: <AdminDashboard /> },
         { path: "admin", element: <AdminList /> },
-        { path: "add-admin", element: <AddEmployee /> },
+        { path: "add-admin", element: <AddAdmin /> },
         { path: "block-list", element: <AdminBlockedList /> },
 
         { path: "settings", element: <AdminSettings /> },
         { path: "settings/forget-password", element: <AdminForgotPassword /> },
+        { path: "settings/profile", element: <ProfilePage /> },
         { path: "settings/change-password", element: <AdminChangePassword /> },
         { path: "settings/email-verification", element: <AdminEmailVerification /> },
+
 
       ],
     },
