@@ -27,7 +27,7 @@ const Sidebar = () => {
     },
     {
       icon: <AiOutlineCluster className="w-5 h-5" />,
-      label: "Companies",
+      label: "Projects",
       Link: "/project",
     },
     {
