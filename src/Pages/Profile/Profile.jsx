@@ -189,7 +189,7 @@ export default function CompanyProfile() {
                     <option value="DE">Germany</option>
                     <option value="FR">France</option>
                     <option value="JP">Japan</option>
-                    <option value="IN">India</option>
+                    <option value="IN">Saudi Arabia</option>
                   </select>
                 </div>
 

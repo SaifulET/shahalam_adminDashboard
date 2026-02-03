@@ -301,7 +301,7 @@ const users = Array.from({ length: 20 }, (_, i) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="w-full max-w-sm p-6 mx-4 text-center bg-white rounded-lg shadow-xl">
             <h2 className="mb-6 text-xl font-semibold text-gray-900">
-              Do you want to block this user?
+              Do you want to block the Company?
             </h2>
 
             <div className="flex gap-3">
