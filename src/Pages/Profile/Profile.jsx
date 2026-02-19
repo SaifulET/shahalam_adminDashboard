@@ -1,58 +1,150 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { Camera, Save, X } from "lucide-react";
+import { message } from "antd";
+import api from "../../lib/api";
+import { useAuthStore } from "../../store/authStore";
 
 export default function CompanyProfile() {
+  const { user, accessToken } = useAuthStore();
   const [formData, setFormData] = useState({
-    companyName: "TechFlow Solutions",
+    name: "",
     tagline: "",
-    about: "",
-    addressLine: "",
+    description: "",
+    location: "",
     city: "",
     country: "",
     postalCode: "",
-    phoneNumber: "+1 (555) 123-4567",
-    email: "company@example.com",
-    website: "https://www.company.com",
-    socialMedia: "https://www.company.com",
+    phone: "",
+    email: "",
+    website: "",
+    instagramLink: "",
+    profileImage  : "",
   });
-
   const [logoPreview, setLogoPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+console.log("formData:", formData);
+  // Fetch profile on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+     
+      if (!user) return;
+      try {
+        const res = await api.get(`/auth/${user.id}`);
+        console.log("Profile data:", res.data, res.data.data.name);
 
+        setFormData({
+          name: res.data.data.name || "",
+          tagline: res.data.data.tagline || "",
+          description: res.data.data.description || "",
+          location: res.data.data.location || "",
+          city: res.data.data.city || "",
+          country: res.data.data.country || "",
+          postalCode: res.data.data.postalCode || "",
+          phone: res.data.data.phone || "",
+          email: res.data.data.email || "",
+          website: res.data.data.website || "",
+          instagramLink: res.data.data.instagramLink || "",
+          profileImage: res.data.data.profileImage || "",
+        });
+
+        if (res.data.data.profileImage) setLogoPreview(res.data.data.profileImage );
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+        message.error("Failed to load profile data");
+      }
+    };
+    fetchProfile();
+  }, [user, accessToken]);
+
+  // Input change handler
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Logo upload handler
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setLogoPreview(reader.result);
+        setFormData((prev) => ({ ...prev, logo: reader.result })); // Include logo in formData
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSave = () => {
-    console.log("Saving profile data:", formData);
-    // Add your save logic here
+  // Save changes
+  const handleSave = async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const res = await api.patch(`/auth/${user.id}`, formData);
+      message.success("Profile updated successfully");
+
+      setFormData({
+        name: res.data.data.name || "",
+        tagline: res.data.data.tagline || "",
+        description: res.data.data.description || "",
+        location: res.data.data.location || "",
+        city: res.data.data.city || "",
+        country: res.data.data.country || "",
+        postalCode: res.data.data.postalCode || "",
+        phone: res.data.data.phone || "",
+        email: res.data.data.email || "",
+        website: res.data.data.website || "",
+        instagramLink: res.data.data.instagramLink || "",
+        profileImage: res.data.data.profileImage || "",
+      });
+
+      if (res.data.data.profileImage) setLogoPreview(res.data.data.profileImage );
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+      message.error("Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleCancel = () => {
-    console.log("Canceling changes");
-    // Add your cancel logic here
+  // Cancel changes
+  const handleCancel = async () => {
+    if (!user) return;
+    try {
+      const res = await api.get(`/auth/${user.id}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      setFormData({
+        name: res.data.data.name || "",
+        tagline: res.data.data.tagline || "",
+        description: res.data.data.description || "",
+        location: res.data.data.location || "",
+        city: res.data.data.city || "",
+        country: res.data.data.country || "",
+        postalCode: res.data.data.postalCode || "",
+        phone: res.data.data.phone || "",
+        email: res.data.data.email || "",
+        website: res.data.data.website || "",
+        instagramLink: res.data.data.instagramLink || "",
+        profileImage: res.data.data.profileImage      || "",
+      });
+
+      if (res.data.data.profileImage) setLogoPreview(res.data.data.profileImage);
+    } catch (err) {
+      console.error("Failed to reset profile:", err);
+      message.error("Failed to reset profile");
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 mt-16">
-      <div className=" rounded mx-auto">
+      <div className="rounded mx-auto max-w-6xl">
         {/* Header */}
         <div className="bg-blue-600 text-white p-6 rounded-t-lg">
-          <h1 className="text-2xl font-semibold">Profile</h1>
+          <h1 className="text-2xl font-semibold">Company Profile</h1>
         </div>
 
         {/* Main Form */}
@@ -63,22 +155,21 @@ export default function CompanyProfile() {
               onClick={handleCancel}
               className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
             >
-              <X size={18} />
-              Cancel
+              <X size={18} /> Cancel
             </button>
             <button
               onClick={handleSave}
+              disabled={loading}
               className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
             >
-              <Save size={18} />
-              Save Changes
+              <Save size={18} /> {loading ? "Saving..." : "Save Changes"}
             </button>
           </div>
 
           <div className="p-6 space-y-8">
-            {/* Company Info Section */}
+            {/* Company Info */}
             <div className="flex gap-6">
-              {/* Logo Upload */}
+              {/* Logo */}
               <div className="flex-shrink-0">
                 <label className="cursor-pointer">
                   <input
@@ -104,7 +195,7 @@ export default function CompanyProfile() {
                 </label>
               </div>
 
-              {/* Company Name and Tagline */}
+              {/* Name & Tagline */}
               <div className="flex-1 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -112,8 +203,8 @@ export default function CompanyProfile() {
                   </label>
                   <input
                     type="text"
-                    name="companyName"
-                    value={formData.companyName}
+                    name="name"
+                    value={formData.name}
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
@@ -140,16 +231,16 @@ export default function CompanyProfile() {
                 About Company
               </label>
               <textarea
-                name="about"
-                value={formData.about}
+                name="description"
+                value={formData.description}
                 onChange={handleInputChange}
-                placeholder="Provide a detailed description of your company, its mission, vision, and core values..."
+                placeholder="Provide a detailed description of your company..."
                 rows={6}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
               />
             </div>
 
-            {/* Address & Contact Information */}
+            {/* Address & Contact */}
             <div>
               <h2 className="text-sm font-medium text-gray-900 mb-4">
                 Address & Contact Information
@@ -162,8 +253,8 @@ export default function CompanyProfile() {
                   </label>
                   <input
                     type="text"
-                    name="addressLine"
-                    value={formData.addressLine}
+                    name="location"
+                    value={formData.location}
                     onChange={handleInputChange}
                     placeholder="Street address"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
@@ -179,7 +270,7 @@ export default function CompanyProfile() {
                     name="country"
                     value={formData.country}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none appearance-none bg-white"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   >
                     <option value="">Select country</option>
                     <option value="US">United States</option>
@@ -223,22 +314,22 @@ export default function CompanyProfile() {
                   />
                 </div>
 
-                {/* Phone Number */}
+                {/* Phone */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Phone Number
                   </label>
                   <input
                     type="tel"
-                    name="phoneNumber"
-                    value={formData.phoneNumber}
+                    name="phone"
+                    value={formData.phone}
                     onChange={handleInputChange}
                     placeholder="+1 (555) 123-4567"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
                 </div>
 
-                {/* Email Address */}
+                {/* Email */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Email Address
@@ -275,8 +366,8 @@ export default function CompanyProfile() {
                   </label>
                   <input
                     type="url"
-                    name="socialMedia"
-                    value={formData.socialMedia}
+                    name="instagramLink"
+                    value={formData.instagramLink}
                     onChange={handleInputChange}
                     placeholder="https://www.company.com"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
