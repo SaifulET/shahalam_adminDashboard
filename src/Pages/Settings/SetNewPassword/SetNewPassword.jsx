@@ -4,11 +4,12 @@ import { FaRegEye } from "react-icons/fa6";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-import brandlogo from "../../../assets/image/logo.svg";
- // Adjust the path as needed
-import api from "../../../lib/api"; // Adjust the path as needed
+
 import { useAuthStore } from "../../../store/authStore";
-const NewPass = () => {
+import api from "../../../lib/api";
+ // Adjust the path as needed
+
+const SetNewPass = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -18,8 +19,7 @@ const NewPass = () => {
   const email = useAuthStore((state) => state.email);
   const clearEmail = useAuthStore((state) => state.clearEmail);
 
-  // Redirect if no email is found in store
-
+  
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -31,11 +31,7 @@ const NewPass = () => {
 
   const onFinish = async (values) => {
     // Check if email exists
-    if (!email) {
-      message.error("Email not found. Please restart the process.");
-      navigate("/forgate-password");
-      return;
-    }
+   
 
     setLoading(true);
     const { newPassword, confirmPassword } = values;
@@ -56,7 +52,7 @@ const NewPass = () => {
 
     try {
       // API call to set new password
-       await api.post("/auth/set-new-password", {
+      await api.post("/auth/set-new-password", {
         email: email,
         newPassword: newPassword
       });
@@ -66,10 +62,7 @@ const NewPass = () => {
       
       message.success("Password changed successfully");
       
-      // Redirect to sign-in page after 1 second
-      setTimeout(() => {
-        navigate("/sign-in");
-      }, 1000);
+      
       
     } catch (error) {
       // Handle error response
@@ -77,6 +70,7 @@ const NewPass = () => {
       message.error(errorMessage);
     } finally {
       setLoading(false);
+      navigate("/settings");
     }
   };
 
@@ -84,7 +78,7 @@ const NewPass = () => {
   if (!email) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#f9fafb]">
-        <div className="text-center p-8 bg-white rounded-2xl">
+        <div className="text-center">
           <p className="text-gray-600">Redirecting to forgot password...</p>
         </div>
       </div>
@@ -104,15 +98,12 @@ const NewPass = () => {
           >
             <div className="mx-auto ">
               <div className="flex justify-center "> 
-                <img src={brandlogo} alt="brandlogo" className="w-40 h-40 my-3" />
+               
               </div>
               <h2 className="mb-4 text-2xl font-bold text-gray-700 md:text-3xl">
-                Create New Password
+                Set New Password
               </h2>
-              <Typography.Text className="text-base text-gray-600">
-                Create a new password for <span className="font-semibold">{email}</span>. 
-                Ensure it differs from previous ones for security.
-              </Typography.Text>
+             
             </div>
 
             <Form.Item
@@ -181,7 +172,7 @@ const NewPass = () => {
               </div>
             </Form.Item>
 
-            {/* Hidden email field for debugging if needed */}
+            {/* Email display (hidden field) - optional, for debugging */}
             <Form.Item name="email" hidden initialValue={email}>
               <Input />
             </Form.Item>
@@ -198,12 +189,8 @@ const NewPass = () => {
               </button>
             </Form.Item>
 
-            {/* Back to sign in link */}
-            <div className="text-center mt-4">
-              <Link to="/sign-in" className="text-[#71ABE0] hover:underline">
-                Back to Sign In
-              </Link>
-            </div>
+            {/* Back to login link (optional) */}
+           
           </Form>
         </div>
       </div>
@@ -211,4 +198,4 @@ const NewPass = () => {
   );
 };
 
-export default NewPass;
+export default SetNewPass;

@@ -5,6 +5,11 @@ export const useAuthStore = create((set) => ({
   accessToken: null,
   isAuthenticated: false,
   loading: true,
+  email: '',
+  
+  // Actions
+  setEmail: (email) => set({ email }),
+  clearEmail: () => set({ email: '' }),
 
   login: (user, token) =>
     set({

@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Trash2, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import api from "../../lib/api"
+import api from "../../lib/api";
 import { useAuthStore } from '../../store/authStore';
+
 const ProjectTable = () => {
-  const {user}= useAuthStore();
+  const { user } = useAuthStore();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const projectsPerPage = 10;
 
   const fetchProjects = async () => {
     try {
@@ -21,9 +26,7 @@ const ProjectTable = () => {
   };
 
   useEffect(() => {
-    if (user?.id) {
-      fetchProjects();
-    }
+    if (user?.id) fetchProjects();
   }, [user?.id]);
 
   const handleDelete = async (projectId) => {
@@ -32,10 +35,21 @@ const ProjectTable = () => {
 
     try {
       await api.delete(`/projects/${projectId}`);
-      fetchProjects(); // reload after delete
+      fetchProjects();
     } catch (error) {
       console.error('Delete project error:', error);
     }
+  };
+
+  // Pagination calculations
+  const indexOfLastProject = currentPage * projectsPerPage;
+  const indexOfFirstProject = indexOfLastProject - projectsPerPage;
+  const currentProjects = projects.slice(indexOfFirstProject, indexOfLastProject);
+  const totalPages = Math.ceil(projects.length / projectsPerPage);
+
+  const goToPage = (pageNumber) => {
+    if (pageNumber < 1 || pageNumber > totalPages) return;
+    setCurrentPage(pageNumber);
   };
 
   return (
@@ -69,30 +83,19 @@ const ProjectTable = () => {
               </div>
             )}
 
-            {projects.map((project, index) => (
+            {!loading && currentProjects.map((project, index) => (
               <div
                 key={project._id}
                 className="grid grid-cols-6 gap-4 px-6 py-4 border-b border-gray-200 last:border-b-0 items-center hover:bg-gray-50"
               >
                 <div className="text-gray-700 font-medium">
-                  {index + 1}
+                  {indexOfFirstProject + index + 1}
                 </div>
 
-                <div className="text-gray-900 font-medium">
-                  {project.name}
-                </div>
-
-                <div className="text-gray-700">
-                  {project.location}
-                </div>
-
-                <div className="text-green-600 font-medium">
-                  Active
-                </div>
-
-                <div className="text-gray-700">
-                  {new Date(project.createdAt).toLocaleDateString()}
-                </div>
+                <div className="text-gray-900 font-medium">{project.name}</div>
+                <div className="text-gray-700">{project.location}</div>
+                <div className="text-green-600 font-medium">Active</div>
+                <div className="text-gray-700">{new Date(project.createdAt).toLocaleDateString()}</div>
 
                 <div className="flex items-center gap-3">
                   <button
@@ -111,6 +114,37 @@ const ProjectTable = () => {
               </div>
             ))}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-end items-center gap-2 py-4">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 border rounded disabled:opacity-50"
+              >
+                Prev
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => goToPage(i + 1)}
+                  className={`px-3 py-1 border rounded ${currentPage === i + 1 ? 'bg-blue-500 text-white' : ''}`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 border rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
 
         </div>
       </div>

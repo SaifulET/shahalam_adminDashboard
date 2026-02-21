@@ -49,6 +49,7 @@ import AdminChangePassword from "../Pages/SuperAdminAuth/Dashboard/ChangePass";
 import AddAdmin from "../Pages/SuperAdminAuth/AddAdmin/AddAdmin";
 import Profile from "../Pages/AdminProfile/Profile";
 import CompanyProfile from "../Pages/Profile/Profile";
+import SetNewPass from "../Pages/Settings/SetNewPassword/SetNewPassword";
 export const router = createBrowserRouter([
   {
     path: "/sign-in",
@@ -112,6 +113,7 @@ export const router = createBrowserRouter([
          
           { path: "/settings/profile", element: <CompanyProfile /> },
           { path: "/settings/change-password", element: <ChangePass /> },
+          { path: "/settings/set-new-password", element: <SetNewPass /> },
         
           { path: "/settings/forget-password", element: <ForgotPassword /> },
          
