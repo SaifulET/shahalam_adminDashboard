@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Upload } from 'lucide-react';
+// axios instance
+import api from '../../lib/api';
+import { useAuthStore } from '../../store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 export default function AddEmployee() {
+  const { user } = useAuthStore();
+
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -13,10 +21,7 @@ export default function AddEmployee() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleImageUpload = (e) => {
@@ -24,103 +29,89 @@ export default function AddEmployee() {
     if (file) {
       setFormData(prev => ({
         ...prev,
-        profileImage: URL.createObjectURL(file)
+        profileImage: file // store actual file
       }));
     }
   };
 
-  const handleSubmit = () => {
-    console.log('Form submitted:', formData);
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+
+   
+    const payload = {
+      userId: user?.id,  // important: use _id
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      password: formData.password
+    };
+      const res = await api.post('/employees/', payload);
+
+      console.log('Success:', res.data);
+      alert('Employee added successfully!');
+
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        password: '',
+        profileImage: null
+      });
+
+    } catch (error) {
+      console.error('Error:', error.response?.data || error.message);
+      alert('Failed to add employee');
+    } finally {
+      setLoading(false);
+      navigate('/employee'); // navigate to employee list after adding
+      
+    }
   };
 
   return (
-    <div className="pt-16 bg-gray-50  flex items-center justify-center">
-      <div className="w-full  bg-white border border-gray-200 rounded-lg overflow-hidden">
-        {/* Header */}
+    <div className="pt-16 bg-gray-50 flex items-center justify-center">
+      <div className="w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
+        
         <div className="bg-blue-500 px-6 py-4">
           <h1 className="text-white text-2xl font-semibold">Employee Management</h1>
         </div>
 
-        {/* Form Content */}
         <div className="px-6 space-y-5">
-          {/* Name Field */}
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
 
-          {/* Email Field */}
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+          <Input label="Name" name="name" value={formData.name} onChange={handleInputChange} />
+          <Input label="Email" name="email" value={formData.email} onChange={handleInputChange} type="email" />
 
-          {/* Phone and Password Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Phone Number Field */}
-            <div>
-              <label className="block text-gray-700 text-sm font-medium mb-2">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
+            <Input label="Phone" name="phone" value={formData.phone} onChange={handleInputChange} />
 
-            {/* Password Field */}
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-2">
-                Password
-              </label>
+              <label className="block text-gray-700 text-sm font-medium mb-2">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10"
+                  className="w-full px-4 py-2.5 border rounded-md pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
+                  {showPassword ? <EyeOff /> : <Eye />}
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Profile Image Upload */}
+          {/* Image Upload */}
           <div>
             <label className="block text-gray-700 text-sm font-medium mb-2">
               Profile Image
             </label>
-            <div className="border border-gray-300 rounded-md p-8 bg-gray-50">
+            <div className="border rounded-md p-8 bg-gray-50">
               <input
                 type="file"
                 id="profileImage"
@@ -128,15 +119,12 @@ export default function AddEmployee() {
                 onChange={handleImageUpload}
                 className="hidden"
               />
-              <label
-                htmlFor="profileImage"
-                className="flex flex-col items-center justify-center cursor-pointer"
-              >
+              <label htmlFor="profileImage" className="flex flex-col items-center cursor-pointer">
                 {formData.profileImage ? (
                   <img
-                    src={formData.profileImage}
-                    alt="Profile preview"
-                    className="w-24 h-24 rounded-full object-cover border-2 border-gray-300"
+                    src={URL.createObjectURL(formData.profileImage)}
+                    alt="preview"
+                    className="w-24 h-24 rounded-full object-cover"
                   />
                 ) : (
                   <>
@@ -148,17 +136,26 @@ export default function AddEmployee() {
             </div>
           </div>
 
-          {/* Add Button */}
-          <div className="pt-2">
-            <button
-              onClick={handleSubmit}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 rounded-md transition-colors duration-200"
-            >
-              Add
-            </button>
-          </div>
+          <button
+            disabled={loading}
+            onClick={handleSubmit}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-md"
+          >
+            {loading ? 'Adding...' : 'Add'}
+          </button>
+
         </div>
       </div>
     </div>
   );
 }
+
+const Input = ({ label, ...props }) => (
+  <div>
+    <label className="block text-gray-700 text-sm font-medium mb-2">{label}</label>
+    <input
+      {...props}
+      className="w-full px-4 py-2.5 border rounded-md"
+    />
+  </div>
+);

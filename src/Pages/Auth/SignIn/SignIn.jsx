@@ -21,7 +21,7 @@ const SignIn = () => {
     try {
       setLoading(true);
 console.log("Login values:", values);
-      const response = await api.post("/auth/login", {
+      const response = await api.post("/auth/login-company", {
         email: values.email,
         password: values.password,
         role: "user", // remove if backend doesn't require it
