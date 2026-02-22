@@ -20,13 +20,11 @@ const SignIn = () => {
   const onFinish = async (values) => {
     try {
       setLoading(true);
-console.log("Login values:", values);
       const response = await api.post("/auth/login-company", {
         email: values.email,
         password: values.password,
         role: "user", // remove if backend doesn't require it
       });
-console.log("Login response:", response.data);
       const { user, accessToken } = response.data;
 
       // Save in Zustand
