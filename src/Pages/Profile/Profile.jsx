@@ -20,15 +20,15 @@ export default function CompanyProfile() {
     email: "",
     website: "",
     instagramLink: "",
-    profileImage  : "",
+    profileImage: "",
   });
   const [logoPreview, setLogoPreview] = useState(null);
+  const [logoFile, setLogoFile] = useState(null); // Store actual file for upload
   const [loading, setLoading] = useState(false);
-console.log("formData:", formData);
+
   // Fetch profile on mount
   useEffect(() => {
     const fetchProfile = async () => {
-     
       if (!user) return;
       try {
         const res = await api.get(`/auth/${user.id}`);
@@ -49,7 +49,7 @@ console.log("formData:", formData);
           profileImage: res.data.data.profileImage || "",
         });
 
-        if (res.data.data.profileImage) setLogoPreview(res.data.data.profileImage );
+        if (res.data.data.profileImage) setLogoPreview(res.data.data.profileImage);
       } catch (err) {
         console.error("Failed to fetch profile:", err);
         message.error("Failed to load profile data");
@@ -64,27 +64,52 @@ console.log("formData:", formData);
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Logo upload handler
+  // Logo upload handler - store the actual file
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setLogoFile(file); // Store the actual file for FormData
       const reader = new FileReader();
       reader.onloadend = () => {
-        setLogoPreview(reader.result);
-        setFormData((prev) => ({ ...prev, logo: reader.result })); // Include logo in formData
+        setLogoPreview(reader.result); // For preview only
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // Save changes
+  // Save changes with FormData
   const handleSave = async () => {
     if (!user) return;
     setLoading(true);
+    
     try {
-      const res = await api.patch(`/auth/${user.id}`, formData);
+      // Create FormData and append all fields (like your previous example)
+      const submitData = new FormData();
+      submitData.append('name', formData.name);
+      submitData.append('tagline', formData.tagline);
+      submitData.append('description', formData.description);
+      submitData.append('location', formData.location);
+      submitData.append('city', formData.city);
+      submitData.append('country', formData.country);
+      submitData.append('postalCode', formData.postalCode);
+      submitData.append('phone', formData.phone);
+      submitData.append('email', formData.email);
+      submitData.append('website', formData.website);
+      submitData.append('instagramLink', formData.instagramLink);
+      
+      // Append image if a new one was selected
+      if (logoFile) {
+        submitData.append('image', logoFile); // or 'image' depending on your backend
+      }
+
+      // Make the API call with multipart/form-data
+      const res = await api.patch(`/auth/${user.id}`, submitData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
       message.success("Profile updated successfully");
 
+      // Update form with response data
       setFormData({
         name: res.data.data.name || "",
         tagline: res.data.data.tagline || "",
@@ -100,7 +125,9 @@ console.log("formData:", formData);
         profileImage: res.data.data.profileImage || "",
       });
 
-      if (res.data.data.profileImage) setLogoPreview(res.data.data.profileImage );
+      if (res.data.data.profileImage) setLogoPreview(res.data.data.profileImage);
+      setLogoFile(null); // Clear the file after successful upload
+
     } catch (err) {
       console.error("Failed to update profile:", err);
       message.error("Failed to update profile");
@@ -129,10 +156,11 @@ console.log("formData:", formData);
         email: res.data.data.email || "",
         website: res.data.data.website || "",
         instagramLink: res.data.data.instagramLink || "",
-        profileImage: res.data.data.profileImage      || "",
+        profileImage: res.data.data.profileImage || "",
       });
 
       if (res.data.data.profileImage) setLogoPreview(res.data.data.profileImage);
+      setLogoFile(null); // Clear any pending file upload
     } catch (err) {
       console.error("Failed to reset profile:", err);
       message.error("Failed to reset profile");
@@ -160,7 +188,7 @@ console.log("formData:", formData);
             <button
               onClick={handleSave}
               disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save size={18} /> {loading ? "Saving..." : "Save Changes"}
             </button>
@@ -369,7 +397,7 @@ console.log("formData:", formData);
                     name="instagramLink"
                     value={formData.instagramLink}
                     onChange={handleInputChange}
-                    placeholder="https://www.company.com"
+                    placeholder="https://www.instagram.com/company"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
                 </div>

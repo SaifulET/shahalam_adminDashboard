@@ -10,7 +10,8 @@ export default function AddEmployee() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-const navigate = useNavigate();
+  const navigate = useNavigate();
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -38,15 +39,24 @@ const navigate = useNavigate();
     try {
       setLoading(true);
 
-   
-    const payload = {
-      userId: user?.id,  // important: use _id
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      password: formData.password
-    };
-      const res = await api.post('/employees/', payload);
+      // Create FormData and append fields (same format as your example)
+      const submitData = new FormData();
+     
+      submitData.append('name', formData.name);
+      submitData.append('email', formData.email);
+      submitData.append('phone', formData.phone);
+      submitData.append('password', formData.password);
+      submitData.append("userId", user?.id); // Append userId if needed by backend
+      
+      // Append image if it exists
+      if (formData.profileImage) {
+        submitData.append('image', formData.profileImage); // or 'profileImage' depending on your backend expectation
+      }
+
+      // Make the API call with multipart/form-data
+      const res = await api.post('/employees/',submitData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
       console.log('Success:', res.data);
       alert('Employee added successfully!');
@@ -59,13 +69,13 @@ const navigate = useNavigate();
         profileImage: null
       });
 
+      navigate('/employee'); // navigate to employee list after adding
+
     } catch (error) {
       console.error('Error:', error.response?.data || error.message);
       alert('Failed to add employee');
     } finally {
       setLoading(false);
-      navigate('/employee'); // navigate to employee list after adding
-      
     }
   };
 
@@ -100,7 +110,7 @@ const navigate = useNavigate();
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2"
                 >
-                  {showPassword ? <EyeOff /> : <Eye />}
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
             </div>
@@ -139,7 +149,7 @@ const navigate = useNavigate();
           <button
             disabled={loading}
             onClick={handleSubmit}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-md"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Adding...' : 'Add'}
           </button>

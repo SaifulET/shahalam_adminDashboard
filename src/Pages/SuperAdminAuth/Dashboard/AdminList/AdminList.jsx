@@ -1,6 +1,8 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, Eye, Ban, ChevronLeft, ChevronRight, X } from "lucide-react"
 import { Link } from "react-router-dom"
+import api from "../../../../lib/api"
+
 
 const AdminList = () => {
   const [searchTerm, setSearchTerm] = useState("")
@@ -9,49 +11,69 @@ const AdminList = () => {
   const [selectedUser, setSelectedUser] = useState(null)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const [userToBlock, setUserToBlock] = useState(null)
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [totalUsers, setTotalUsers] = useState(0)
+  const [viewUserLoading, setViewUserLoading] = useState(false)
 
- // Random name list
-const randomNames = [
-  "John Carter", "Sophia Adams", "Liam Wilson", "Emma Johnson",
-  "Noah Walker", "Olivia Brown", "Mason Davis", "Ava Martinez",
-  "James Miller", "Amelia Taylor", "Benjamin Moore", "Mia Anderson",
-  "Lucas Thomas", "Charlotte Lee", "Henry White", "Isabella Harris",
-  "Logan Hall", "Evelyn Scott", "Alexander Young", "Grace King"
-]
-
-// Generate random users
-const users = Array.from({ length: 20 }, (_, i) => {
-  const name = randomNames[Math.floor(Math.random() * randomNames.length)]
-
-  return {
-    id: i + 1,
-    name,
-    email: `${name.toLowerCase().replace(/ /g, "")}${i + 1}@gmail.com`,
-    phone: `01${Math.floor(100000000 + Math.random() * 900000000)}`,
-    status:"active",
-    joinedDate: "02-24-2024",
-    avatar:
-      "https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000",
-  }
-})
-
-
-  const totalUsers = users.length
   const usersPerPage = 8
-  const totalPages = Math.ceil(totalUsers / usersPerPage)
 
-  // Pagination
-  const startIndex = (currentPage - 1) * usersPerPage
-  const currentUsers = users.slice(startIndex, startIndex + usersPerPage)
+  // Fetch admins on component mount and when page changes
+  useEffect(() => {
+    fetchAdmins()
+  }, [currentPage])
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page)
+  const fetchAdmins = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await api.get("/admins/role", {
+        params: {
+          page: currentPage,
+          limit: usersPerPage,
+          search: searchTerm // Add search parameter if your API supports it
+        }
+      })
+      if (response.data.success) {
+        setUsers(response.data.data)
+        // If your API returns total count, set it here
+        // setTotalUsers(response.data.total)
+        setTotalUsers(response.data.data.length) // Temporary, replace with actual total from API
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to fetch admins")
+    } finally {
+      setLoading(false)
+    }
   }
 
-  // Modals
-  const handleViewUser = (user) => {
-    setSelectedUser(user)
-    setIsModalOpen(true)
+  // Handle search with debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchTerm) {
+        setCurrentPage(1) // Reset to first page on search
+        fetchAdmins()
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
+  const handleViewUser = async (user) => {
+    setViewUserLoading(true)
+    try {
+      const response = await api.get(`/admins/${user._id}`)
+      if (response.data.success) {
+        setSelectedUser(response.data.data)
+        setIsModalOpen(true)
+      }
+    } catch (err) {
+      console.error("Error fetching user details:", err)
+      alert("Failed to fetch user details")
+    } finally {
+      setViewUserLoading(false)
+    }
   }
 
   const handleCloseModal = () => {
@@ -64,15 +86,47 @@ const users = Array.from({ length: 20 }, (_, i) => {
     setIsConfirmModalOpen(true)
   }
 
-  const handleConfirmBlock = () => {
-    console.log("Blocking user:", userToBlock)
-    setIsConfirmModalOpen(false)
-    setUserToBlock(null)
+  const handleConfirmBlock = async () => {
+    try {
+      const response = await api.patch(`/admins/${userToBlock._id}`, {
+        status: "blocked"
+      })
+      
+      if (response.data.success) {
+        // Refresh the list
+        fetchAdmins()
+        setIsConfirmModalOpen(false)
+        setUserToBlock(null)
+        
+        // Close the view modal if it's open
+        if (isModalOpen) {
+          setIsModalOpen(false)
+          setSelectedUser(null)
+        }
+      }
+    } catch (err) {
+      console.error("Error blocking user:", err)
+      alert(err.response?.data?.message || "Failed to block user")
+    }
   }
 
   const handleCancelBlock = () => {
     setIsConfirmModalOpen(false)
     setUserToBlock(null)
+  }
+
+  const totalPages = Math.ceil(totalUsers / usersPerPage)
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page)
+  }
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric'
+    })
   }
 
   const renderPaginationNumbers = () => {
@@ -115,9 +169,9 @@ const users = Array.from({ length: 20 }, (_, i) => {
                 />
               </div>
               <Link to={'/admin/block-list'}>
-              <button className="px-4 py-2 text-sm font-medium bg-white rounded-lg text-cyan-600 hover:bg-gray-50">
-                Blocked Users
-              </button>
+                <button className="px-4 py-2 text-sm font-medium bg-white rounded-lg text-cyan-600 hover:bg-gray-50">
+                  Blocked Users
+                </button>
               </Link>
             </div>
           </div>
@@ -125,118 +179,154 @@ const users = Array.from({ length: 20 }, (_, i) => {
 
         {/* Table */}
         <div className="bg-white rounded-lg shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                    S.ID
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                    Full Name
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                    Phone No
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                    Joined Date
-                  </th>
-                  <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody className="bg-white divide-y divide-gray-200">
-                {currentUsers.map((user, index) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
-                      {String(startIndex + index + 1).padStart(2, "0")}
-                    </td>
-
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <img src={user.avatar} className="w-8 h-8 rounded-full" />
-                        <span className="ml-3 text-sm font-medium text-gray-900">{user.name}</span>
-                      </div>
-                    </td>
-
-                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{user.email}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{user.phone}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{user.status}</td>
-
-                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{user.joinedDate}</td>
-
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleBanUser(user)}
-                          className="p-1 text-red-500 rounded-full hover:bg-red-50"
-                        >
-                          <Ban className="w-4 h-4" />
-                        </button>
-
-                        <button
-                          onClick={() => handleViewUser(user)}
-                          className="flex items-center gap-1 p-1 text-[#71ABE0] rounded-full hover:bg-blue-50"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200">
-            <span className="text-sm text-gray-700">
-              SHOWING {startIndex + 1}-{Math.min(startIndex + usersPerPage, totalUsers)} OF {totalUsers}
-            </span>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="p-2 text-gray-400 rounded-lg hover:bg-gray-100 disabled:opacity-50"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-
-              {renderPaginationNumbers().map((page, index) => (
-                <button
-                  key={index}
-                  onClick={() => typeof page === "number" && handlePageChange(page)}
-                  disabled={page === "..."}
-                  className={`min-w-[32px] rounded-lg px-3 py-1 text-sm ${
-                    page === currentPage
-                      ? "bg-[#71ABE0] text-white"
-                      : page === "..."
-                      ? "text-gray-400 cursor-default"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
-
-              <button
-                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-                className="p-2 text-gray-400 rounded-lg hover:bg-gray-100 disabled:opacity-50"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
-          </div>
+          ) : error ? (
+            <div className="py-20 text-center text-red-500">
+              {error}
+            </div>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
+                        S.ID
+                      </th>
+                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
+                        Full Name
+                      </th>
+                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
+                        Email
+                      </th>
+                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
+                        Phone No
+                      </th>
+                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
+                        Joined Date
+                      </th>
+                      <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {users.length > 0 ? (
+                      users.map((user, index) => (
+                        <tr key={user._id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                            {String((currentPage - 1) * usersPerPage + index + 1).padStart(2, "0")}
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <img 
+                                src={user.profileImage || "https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000"} 
+                                className="w-8 h-8 rounded-full" 
+                                alt={user.name}
+                              />
+                              <span className="ml-3 text-sm font-medium text-gray-900">{user.name}</span>
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{user.email}</td>
+                          <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{user.phone || "N/A"}</td>
+                          <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                              user.status === 'active' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {user.status}
+                            </span>
+                          </td>
+
+                          <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                            {formatDate(user.joinedDate)}
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleBanUser(user)}
+                                className="p-1 text-red-500 rounded-full hover:bg-red-50"
+                                disabled={user.status === 'blocked'}
+                              >
+                                <Ban className="w-4 h-4" />
+                              </button>
+
+                              <button
+                                onClick={() => handleViewUser(user)}
+                                className="flex items-center gap-1 p-1 text-[#71ABE0] rounded-full hover:bg-blue-50"
+                                disabled={viewUserLoading}
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="7" className="px-6 py-20 text-center text-gray-500">
+                          No admins found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200">
+                <span className="text-sm text-gray-700">
+                  SHOWING {((currentPage - 1) * usersPerPage) + 1}-{Math.min(currentPage * usersPerPage, totalUsers)} OF {totalUsers}
+                </span>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className="p-2 text-gray-400 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+
+                  {renderPaginationNumbers().map((page, index) => (
+                    <button
+                      key={index}
+                      onClick={() => typeof page === "number" && handlePageChange(page)}
+                      disabled={page === "..."}
+                      className={`min-w-[32px] rounded-lg px-3 py-1 text-sm ${
+                        page === currentPage
+                          ? "bg-[#71ABE0] text-white"
+                          : page === "..."
+                          ? "text-gray-400 cursor-default"
+                          : "text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    className="p-2 text-gray-400 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -255,7 +345,11 @@ const users = Array.from({ length: 20 }, (_, i) => {
 
             <div className="p-6">
               <div className="flex items-center mb-6">
-                <img src={selectedUser.avatar} className="w-16 h-16 mr-4 rounded-full" />
+                <img 
+                  src={selectedUser.profileImage || "https://images.unsplash.com/photo-1633332755192-727a05c4013d?fm=jpg&q=60&w=3000"} 
+                  className="w-16 h-16 mr-4 rounded-full" 
+                  alt={selectedUser.name}
+                />
                 <h3 className="text-xl font-medium text-[#71ABE0]">{selectedUser.name}</h3>
               </div>
 
@@ -271,8 +365,24 @@ const users = Array.from({ length: 20 }, (_, i) => {
                 </div>
 
                 <div className="flex justify-between">
+                  <span className="font-medium text-gray-700">Role</span>
+                  <span className="text-gray-900 capitalize">{selectedUser.role}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="font-medium text-gray-700">Status</span>
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                    selectedUser.status === 'active' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {selectedUser.status}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
                   <span className="font-medium text-gray-700">Joining Date</span>
-                  <span className="text-gray-900">{selectedUser.joinedDate}</span>
+                  <span className="text-gray-900">{formatDate(selectedUser.joinedDate)}</span>
                 </div>
               </div>
             </div>
@@ -285,12 +395,17 @@ const users = Array.from({ length: 20 }, (_, i) => {
                 Cancel
               </button>
 
-              <button
-                onClick={() => handleBanUser(selectedUser)}
-                className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg"
-              >
-                Block
-              </button>
+              {selectedUser.status !== 'blocked' && (
+                <button
+                  onClick={() => {
+                    handleCloseModal()
+                    handleBanUser(selectedUser)
+                  }}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg"
+                >
+                  Block
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -301,7 +416,7 @@ const users = Array.from({ length: 20 }, (_, i) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="w-full max-w-sm p-6 mx-4 text-center bg-white rounded-lg shadow-xl">
             <h2 className="mb-6 text-xl font-semibold text-gray-900">
-              Do you want to block the Company?
+              Do you want to block {userToBlock.name}?
             </h2>
 
             <div className="flex gap-3">
