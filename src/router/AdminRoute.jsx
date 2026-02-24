@@ -1,21 +1,16 @@
 import { Navigate, Outlet } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
-const AdminRoute = () => {
-  const user = localStorage.getItem("admin");
-//   JSON.parse(localStorage.getItem("user"));
-console.log(user)
-  // Not logged in
-//   if (!user) {
-//     return <Navigate to="/sign-in" replace />;
-//   }
+const PrivateRoute = () => {
+  const { isAuthenticated } = useAuthStore();
 
-  // Logged in but not admin
-//   if (user.role !== "admin") {
-//     return <Navigate to="/unauthorized" replace />;
-//   }
 
-  // Admin access granted
+  if (!isAuthenticated) {
+    return <Navigate to="/admin/sign-in" replace />;
+  }
+
   return <Outlet />;
 };
 
-export default AdminRoute;
+export default PrivateRoute;
+

@@ -23,7 +23,7 @@ const SignIn = () => {
       const response = await api.post("/auth/login-company", {
         email: values.email,
         password: values.password,
-        role: "user", // remove if backend doesn't require it
+     
       });
       const { user, accessToken } = response.data;
 

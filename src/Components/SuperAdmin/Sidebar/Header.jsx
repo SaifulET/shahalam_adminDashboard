@@ -4,17 +4,15 @@ import { RxHamburgerMenu } from "react-icons/rx";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { Bell, MessageSquareMore } from "lucide-react";
 import adminImage from "../../../assets/image/adminkickclick.jpg";
+import { useAuthStore } from "../../../store/authStore";
 
 const AdminHeader = ({ showDrawer }) => {
   
-  
+  const user = useAuthStore().user
  
   
 
-  const adminProfile = {
-    name: "James",
-    role: "admin",
-  };
+
 
  
 
@@ -34,7 +32,7 @@ const AdminHeader = ({ showDrawer }) => {
           />
           <div>
             <h2 className="font-semibold text-gray-800 text-md">
-              Welcome, {adminProfile.name}
+              Welcome, {user.name}
             </h2>
             <p className="text-sm text-gray-500">Have a nice day!</p>
           </div>
@@ -50,7 +48,7 @@ const AdminHeader = ({ showDrawer }) => {
           <Link to="/admin/settings/profile" >
           <div className="p-2 text-blue-700 transition border border-blue-500 rounded-full hover:bg-blue-50">
             <img
-              src={adminImage}
+              src={user.profileImage || adminImage}
               alt="Admin"
               className="object-cover w-5 h-5 rounded-full"
             />

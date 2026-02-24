@@ -1,9 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../../store/authStore';
+import api from '../../../lib/api';
+ // Adjust the path as neededmport axios from 'axios';
+
 export default function AdminEmailVerification() {
   const [code, setCode] = useState(['', '', '', '']);
   const [isResending, setIsResending] = useState(false);
-const navigate = useNavigate();
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  // Get email from Zustand store
+  const email = useAuthStore((state) => state.email);
+ 
+
   const handleCodeChange = (index, value) => {
     // Only allow numbers
     if (value && !/^\d$/.test(value)) return;
@@ -11,6 +22,7 @@ const navigate = useNavigate();
     const newCode = [...code];
     newCode[index] = value;
     setCode(newCode);
+    setError(''); // Clear error when user types
 
     // Auto-focus next input
     if (value && index < 3) {
@@ -24,31 +36,103 @@ const navigate = useNavigate();
       document.getElementById(`code-${index - 1}`)?.focus();
     }
   };
-const arrowback=()=>{
-    navigate("/admin/settings/forget-password")
-}
-  const handleVerify = () => {
+
+  const arrowback = () => {
+    navigate("/admin/settings/forget-password");
+  };
+
+  const handleVerify = async () => {
     const verificationCode = code.join('');
-    if (verificationCode.length === 4) {
-     navigate("/admin/settings")
+    
+    // Validate OTP
+    if (verificationCode.length !== 4) {
+      setError('Please enter complete 4-digit code');
+      return;
+    }
+
+    // Check if email exists in store
+    if (!email) {
+      setError('Email not found. Please try again from forgot password.');
+      setTimeout(() => {
+        navigate("/admin/settings/forget-password");
+      }, 2000);
+      return;
+    }
+
+    setIsVerifying(true);
+    setError('');
+
+    try {
+      // API call to verify OTP
+       await api.post('/auth/verify-otp', {
+        email: email,
+        otp: verificationCode
+      });
+
+      
+      
+
+      // Navigate to settings or reset password page
+      // You can change this based on your flow
+      navigate("/admin/settings/set-new-password");
+      
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid verification code. Please try again.');
+    } finally {
+      setIsVerifying(false);
     }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
+    if (!email) {
+      setError('Email not found. Please try again from forgot password.');
+      setTimeout(() => {
+        navigate("/settings/forget-password");
+      }, 2000);
+      return;
+    }
+
     setIsResending(true);
-    // Add resend logic here
-    setTimeout(() => {
+    setError('');
+
+    try {
+      // API call to resend OTP
+       await api.post('/auth/forgot-password', {
+        email: email
+      });
+
+      // Clear code inputs
+      setCode(['', '', '', '']);
+      
+      // You can show a success message here if needed
+      console.log('OTP resent successfully');
+      
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to resend code. Please try again.');
+    } finally {
       setIsResending(false);
-     
-    }, 1000);
+    }
   };
 
+  // Optional: Redirect if no email in store
+  if (!email) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-start justify-center py-4 mt-20">
+        <div className="w-full bg-white rounded-lg shadow-sm overflow-hidden mt-8 p-8">
+          <p className="text-red-500 text-center">
+            No email found. Redirecting to forgot password...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-100 flex items-start justify-center p-4 mt-20">
-      <div className="w-full  bg-white rounded-lg shadow-sm overflow-hidden mt-8">
+    <div className="min-h-screen bg-gray-100 flex items-start justify-center py-4 mt-20">
+      <div className="w-full bg-white rounded-lg shadow-sm overflow-hidden mt-8">
         {/* Header */}
         <div className="bg-blue-500 px-6 py-4 flex items-center">
-          <button  onClick={arrowback} className="text-white mr-4 hover:bg-blue-600 rounded p-1 transition-colors">
+          <button onClick={arrowback} className="text-white mr-4 hover:bg-blue-600 rounded p-1 transition-colors">
             <svg 
               className="w-6 h-6" 
               fill="none" 
@@ -63,15 +147,23 @@ const arrowback=()=>{
               />
             </svg>
           </button>
-          <h1 className="text-white text-2xl font-semibold">Settings</h1>
+          <h1 className="text-white text-2xl font-semibold">Email Verification</h1>
         </div>
 
         {/* Content */}
         <div className="px-6 py-12">
           <div className="max-w-md mx-auto">
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-center">
+                {error}
+              </div>
+            )}
+
             {/* Instruction Text */}
             <p className="text-gray-800 text-center text-lg mb-8">
-              Please check your email. We have sent a code to contact @gmail.com
+              Please check your email. We have sent a code to <br />
+              <span className="font-semibold">{email}</span>
             </p>
 
             {/* Code Input Boxes */}
@@ -85,8 +177,11 @@ const arrowback=()=>{
                   value={digit}
                   onChange={(e) => handleCodeChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-16 h-16 text-center text-2xl font-semibold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                  className={`w-16 h-16 text-center text-2xl font-semibold border-2 rounded-lg focus:outline-none transition-colors ${
+                    error && !digit ? 'border-red-300' : 'border-gray-300'
+                  } focus:border-blue-500`}
                   placeholder="–"
+                  disabled={isVerifying || isResending}
                 />
               ))}
             </div>
@@ -96,7 +191,7 @@ const arrowback=()=>{
               <span className="text-sm text-gray-600">Didn't receive code?</span>
               <button
                 onClick={handleResend}
-                disabled={isResending}
+                disabled={isResending || isVerifying}
                 className="text-sm text-gray-800 underline hover:text-blue-600 transition-colors disabled:opacity-50"
               >
                 {isResending ? 'Sending...' : 'Resend'}
@@ -106,9 +201,12 @@ const arrowback=()=>{
             {/* Verify Button */}
             <button
               onClick={handleVerify}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-lg transition-colors "
+              disabled={isVerifying || isResending}
+              className={`w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-lg transition-colors ${
+                (isVerifying || isResending) ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
-              Verify
+              {isVerifying ? 'Verifying...' : 'Verify'}
             </button>
           </div>
         </div>

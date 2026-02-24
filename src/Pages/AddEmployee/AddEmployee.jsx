@@ -54,11 +54,10 @@ export default function AddEmployee() {
       }
 
       // Make the API call with multipart/form-data
-      const res = await api.post('/employees/',submitData, {
+      await api.post('/employees/',submitData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      console.log('Success:', res.data);
       alert('Employee added successfully!');
 
       setFormData({

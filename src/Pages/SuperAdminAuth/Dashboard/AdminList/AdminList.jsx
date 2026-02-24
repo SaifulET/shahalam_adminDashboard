@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Search, Eye, Ban, ChevronLeft, ChevronRight, X } from "lucide-react"
 import { Link } from "react-router-dom"
 import api from "../../../../lib/api"
+import { useAuthStore } from "../../../../store/authStore"
 
 
 const AdminList = () => {
@@ -19,6 +20,9 @@ const AdminList = () => {
 
   const usersPerPage = 8
 
+
+  const user= useAuthStore().user
+  console.log(user,"useruser")
   // Fetch admins on component mount and when page changes
   useEffect(() => {
     fetchAdmins()

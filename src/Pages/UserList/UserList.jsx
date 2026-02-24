@@ -7,6 +7,7 @@ import { useAuthStore } from "../../store/authStore"
 const UserList = () => {
   const { user } = useAuthStore()
 
+
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
@@ -22,6 +23,7 @@ const UserList = () => {
   const fetchEmployees = async () => {
     try {
       setLoading(true)
+
       const res = await api.get(`/employees/allemployee/${user?.id}`)
       setUsers(res.data.data || [])
     } catch (error) {

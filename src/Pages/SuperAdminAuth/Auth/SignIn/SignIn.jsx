@@ -26,7 +26,6 @@ const AdminSignIn = () => {
       };
 
       const res = await api.post("/auth/superadmin-login", payload);
-
       const { accessToken, user } = res.data;
 
       login(user, accessToken);

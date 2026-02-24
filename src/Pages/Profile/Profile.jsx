@@ -23,8 +23,9 @@ export default function CompanyProfile() {
     profileImage: "",
   });
   const [logoPreview, setLogoPreview] = useState(null);
-  const [logoFile, setLogoFile] = useState(null); // Store actual file for upload
+  const [logoFile, setLogoFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const login = useAuthStore((state) => state.login);
 
   // Fetch profile on mount
   useEffect(() => {
@@ -32,31 +33,46 @@ export default function CompanyProfile() {
       if (!user) return;
       try {
         const res = await api.get(`/auth/${user.id}`);
-        console.log("Profile data:", res.data, res.data.data.name);
+        console.log("Profile data:", res.data);
 
+        const userData = res.data.data;
+        
         setFormData({
-          name: res.data.data.name || "",
-          tagline: res.data.data.tagline || "",
-          description: res.data.data.description || "",
-          location: res.data.data.location || "",
-          city: res.data.data.city || "",
-          country: res.data.data.country || "",
-          postalCode: res.data.data.postalCode || "",
-          phone: res.data.data.phone || "",
-          email: res.data.data.email || "",
-          website: res.data.data.website || "",
-          instagramLink: res.data.data.instagramLink || "",
-          profileImage: res.data.data.profileImage || "",
+          name: userData.name || "",
+          tagline: userData.tagline || "",
+          description: userData.description || "",
+          location: userData.location || "",
+          city: userData.city || "",
+          country: userData.country || "",
+          postalCode: userData.postalCode || "",
+          phone: userData.phone || "",
+          email: userData.email || "",
+          website: userData.website || "",
+          instagramLink: userData.instagramLink || "",
+          profileImage: userData.profileImage || "",
         });
 
-        if (res.data.data.profileImage) setLogoPreview(res.data.data.profileImage);
+        // Set the preview from server data
+        if (userData.profileImage) {
+          setLogoPreview(userData.profileImage);
+        }
+
+        // update auth store
+        login({
+          id: userData._id,
+          name: userData.name,
+          email: userData.email,
+          phone: userData.phone,
+          profileImage: userData.profileImage,
+        });
+
       } catch (err) {
         console.error("Failed to fetch profile:", err);
         message.error("Failed to load profile data");
       }
     };
     fetchProfile();
-  }, [user, accessToken]);
+  }, [user, accessToken, login]);
 
   // Input change handler
   const handleInputChange = (e) => {
@@ -64,18 +80,37 @@ export default function CompanyProfile() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Logo upload handler - store the actual file
+  // Logo upload handler - fixed for immediate preview
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setLogoFile(file); // Store the actual file for FormData
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result); // For preview only
-      };
-      reader.readAsDataURL(file);
+      setLogoFile(file);
+      
+      // Clean up previous blob URL if it exists
+      if (logoPreview && logoPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(logoPreview);
+      }
+      
+      // Create new preview
+      const previewUrl = URL.createObjectURL(file);
+      setLogoPreview(previewUrl);
+      
+      // Force a re-render by using a small timeout (optional, usually not needed)
+      // This can help in some edge cases
+      setTimeout(() => {
+        setLogoPreview(prev => prev); // This is a trick to force re-render if needed
+      }, 10);
     }
   };
+
+  // Clean up object URLs to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (logoPreview && logoPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(logoPreview);
+      }
+    };
+  }, [logoPreview]);
 
   // Save changes with FormData
   const handleSave = async () => {
@@ -83,7 +118,6 @@ export default function CompanyProfile() {
     setLoading(true);
     
     try {
-      // Create FormData and append all fields (like your previous example)
       const submitData = new FormData();
       submitData.append('name', formData.name);
       submitData.append('tagline', formData.tagline);
@@ -97,36 +131,53 @@ export default function CompanyProfile() {
       submitData.append('website', formData.website);
       submitData.append('instagramLink', formData.instagramLink);
       
-      // Append image if a new one was selected
       if (logoFile) {
-        submitData.append('image', logoFile); // or 'image' depending on your backend
+        submitData.append('image', logoFile);
       }
 
-      // Make the API call with multipart/form-data
       const res = await api.patch(`/auth/${user.id}`, submitData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
       message.success("Profile updated successfully");
 
+      // Clean up blob URL if it exists
+      if (logoPreview && logoPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(logoPreview);
+      }
+
       // Update form with response data
+      const updatedData = res.data.data;
       setFormData({
-        name: res.data.data.name || "",
-        tagline: res.data.data.tagline || "",
-        description: res.data.data.description || "",
-        location: res.data.data.location || "",
-        city: res.data.data.city || "",
-        country: res.data.data.country || "",
-        postalCode: res.data.data.postalCode || "",
-        phone: res.data.data.phone || "",
-        email: res.data.data.email || "",
-        website: res.data.data.website || "",
-        instagramLink: res.data.data.instagramLink || "",
-        profileImage: res.data.data.profileImage || "",
+        name: updatedData.name || "",
+        tagline: updatedData.tagline || "",
+        description: updatedData.description || "",
+        location: updatedData.location || "",
+        city: updatedData.city || "",
+        country: updatedData.country || "",
+        postalCode: updatedData.postalCode || "",
+        phone: updatedData.phone || "",
+        email: updatedData.email || "",
+        website: updatedData.website || "",
+        instagramLink: updatedData.instagramLink || "",
+        profileImage: updatedData.profileImage || "",
       });
 
-      if (res.data.data.profileImage) setLogoPreview(res.data.data.profileImage);
+      // Update preview with the server URL after successful upload
+      if (updatedData.profileImage) {
+        setLogoPreview(updatedData.profileImage);
+      }
+      
       setLogoFile(null); // Clear the file after successful upload
+
+      // Update auth store with new data
+      login({
+        id: user._id,
+        name: updatedData.name,
+        email: updatedData.email,
+        phone: updatedData.phone,
+        profileImage: updatedData.profileImage,
+      });
 
     } catch (err) {
       console.error("Failed to update profile:", err);
@@ -144,27 +195,48 @@ export default function CompanyProfile() {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
+      const userData = res.data.data;
+      
       setFormData({
-        name: res.data.data.name || "",
-        tagline: res.data.data.tagline || "",
-        description: res.data.data.description || "",
-        location: res.data.data.location || "",
-        city: res.data.data.city || "",
-        country: res.data.data.country || "",
-        postalCode: res.data.data.postalCode || "",
-        phone: res.data.data.phone || "",
-        email: res.data.data.email || "",
-        website: res.data.data.website || "",
-        instagramLink: res.data.data.instagramLink || "",
-        profileImage: res.data.data.profileImage || "",
+        name: userData.name || "",
+        tagline: userData.tagline || "",
+        description: userData.description || "",
+        location: userData.location || "",
+        city: userData.city || "",
+        country: userData.country || "",
+        postalCode: userData.postalCode || "",
+        phone: userData.phone || "",
+        email: userData.email || "",
+        website: userData.website || "",
+        instagramLink: userData.instagramLink || "",
+        profileImage: userData.profileImage || "",
       });
 
-      if (res.data.data.profileImage) setLogoPreview(res.data.data.profileImage);
+      // Clean up blob URL if it exists
+      if (logoPreview && logoPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(logoPreview);
+      }
+
+      // Reset preview to server image
+      if (userData.profileImage) {
+        setLogoPreview(userData.profileImage);
+      } else {
+        setLogoPreview(null);
+      }
       setLogoFile(null); // Clear any pending file upload
+      
+      message.success("Changes cancelled");
     } catch (err) {
       console.error("Failed to reset profile:", err);
       message.error("Failed to reset profile");
     }
+  };
+
+  // Image error handler
+  const handleImageError = (e) => {
+    console.log("Image failed to load:", e.target.src);
+    e.target.style.display = 'none';
+    e.target.nextSibling?.style?.setProperty('display', 'flex');
   };
 
   return (
@@ -197,22 +269,29 @@ export default function CompanyProfile() {
           <div className="p-6 space-y-8">
             {/* Company Info */}
             <div className="flex gap-6">
-              {/* Logo */}
+              {/* Logo - Fixed preview section */}
               <div className="flex-shrink-0">
-                <label className="cursor-pointer">
+                <label className="cursor-pointer block relative">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleLogoUpload}
                     className="hidden"
+                    key={logoPreview} // This forces the input to re-render when preview changes
                   />
-                  <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-gray-200 hover:border-blue-400 transition-colors">
+                  <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-gray-200 hover:border-blue-400 transition-colors overflow-hidden relative">
                     {logoPreview ? (
-                      <img
-                        src={logoPreview}
-                        alt="Company Logo"
-                        className="w-full h-full object-cover rounded-lg"
-                      />
+                      <>
+                        <img
+                          src={logoPreview}
+                          alt="Company Logo"
+                          className="w-full h-full object-cover"
+                          onError={handleImageError}
+                        />
+                        <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
+                          <Camera className="text-white" size={24} />
+                        </div>
+                      </>
                     ) : (
                       <div className="text-center">
                         <Camera className="mx-auto text-gray-400 mb-1" size={24} />
@@ -221,6 +300,11 @@ export default function CompanyProfile() {
                     )}
                   </div>
                 </label>
+                {logoFile && (
+                  <p className="text-xs text-green-600 mt-1">
+                    New image selected: {logoFile.name}
+                  </p>
+                )}
               </div>
 
               {/* Name & Tagline */}
@@ -308,7 +392,7 @@ export default function CompanyProfile() {
                     <option value="DE">Germany</option>
                     <option value="FR">France</option>
                     <option value="JP">Japan</option>
-                    <option value="IN">Saudi Arabia</option>
+                    <option value="SA">Saudi Arabia</option>
                   </select>
                 </div>
 
