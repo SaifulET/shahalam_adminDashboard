@@ -2,11 +2,10 @@
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
+const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
 const api = axios.create({
-//   baseURL: process.env.NEXT_PUBLIC_API_URL, 
-
-  baseURL: "http://localhost:5001",
+  baseURL: apiBaseUrl,
 
   withCredentials: true, // send httpOnly cookie
 });
