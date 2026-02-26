@@ -1,12 +1,8 @@
 import React, { useState } from "react";
-import { Outlet,  } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import { Drawer } from "antd";
-import { RxHamburgerMenu } from "react-icons/rx";
-import { IoMdNotificationsOutline } from "react-icons/io";
-import { Bell } from "lucide-react";
 import Header from "../../Components/Sidebar/Header";
-
 const MainLayout = () => {
   const onClose = () => setOpen(false);
   const [open, setOpen] = useState(false);

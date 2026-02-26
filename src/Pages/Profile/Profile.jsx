@@ -3,11 +3,12 @@
 import { useState, useEffect } from "react";
 import { Camera, Save, X } from "lucide-react";
 import { message } from "antd";
+import { useNavigate } from "react-router-dom";
 import api from "../../lib/api";
 import { useAuthStore } from "../../store/authStore";
 
 export default function CompanyProfile() {
-  const { user, accessToken } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
   const [formData, setFormData] = useState({
     name: "",
     tagline: "",
@@ -26,6 +27,7 @@ export default function CompanyProfile() {
   const [logoFile, setLogoFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const login = useAuthStore((state) => state.login);
+  const navigate = useNavigate();
 
   // Fetch profile on mount
   useEffect(() => {
@@ -72,7 +74,7 @@ export default function CompanyProfile() {
       }
     };
     fetchProfile();
-  }, [user, accessToken, login]);
+  }, [user?.id, login]);
 
   // Input change handler
   const handleInputChange = (e) => {
@@ -172,7 +174,7 @@ export default function CompanyProfile() {
 
       // Update auth store with new data
       login({
-        id: user._id,
+        id: updatedData._id || user?.id,
         name: updatedData.name,
         email: updatedData.email,
         phone: updatedData.phone,
@@ -188,48 +190,12 @@ export default function CompanyProfile() {
   };
 
   // Cancel changes
-  const handleCancel = async () => {
-    if (!user) return;
-    try {
-      const res = await api.get(`/auth/${user.id}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-
-      const userData = res.data.data;
-      
-      setFormData({
-        name: userData.name || "",
-        tagline: userData.tagline || "",
-        description: userData.description || "",
-        location: userData.location || "",
-        city: userData.city || "",
-        country: userData.country || "",
-        postalCode: userData.postalCode || "",
-        phone: userData.phone || "",
-        email: userData.email || "",
-        website: userData.website || "",
-        instagramLink: userData.instagramLink || "",
-        profileImage: userData.profileImage || "",
-      });
-
-      // Clean up blob URL if it exists
-      if (logoPreview && logoPreview.startsWith('blob:')) {
-        URL.revokeObjectURL(logoPreview);
-      }
-
-      // Reset preview to server image
-      if (userData.profileImage) {
-        setLogoPreview(userData.profileImage);
-      } else {
-        setLogoPreview(null);
-      }
-      setLogoFile(null); // Clear any pending file upload
-      
-      message.success("Changes cancelled");
-    } catch (err) {
-      console.error("Failed to reset profile:", err);
-      message.error("Failed to reset profile");
+  const handleCancel = () => {
+    if (logoPreview && logoPreview.startsWith("blob:")) {
+      URL.revokeObjectURL(logoPreview);
     }
+    setLogoFile(null);
+    navigate("/dashboard");
   };
 
   // Image error handler

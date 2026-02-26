@@ -2,29 +2,49 @@ import React, { useState } from "react";
 import { Form, Input, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import brandlogo from "../../../../assets/image/logo.svg";
+import { useAuthStore } from "../../../../store/authStore";
+import api from "../../../../lib/api";
+
 
 const AdminForgatePassword = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  const onFinish = () => {
+  const setStoredEmail = useAuthStore((state) => state.setEmail); // store email globally
+
+  const onFinish = async (values) => {
+    const { email } = values;
+    if (!email) return;
+
     setLoading(true);
-    // Simulate sending reset email
-    setTimeout(() => {
-      message.success("Reset instructions sent to your email!");
+    try {
+      const response = await api.post("/auth/forgot-password", { email });
+
+      if (response.status === 200) {
+        message.success("Reset instructions sent to your email!");
+        setStoredEmail(email); // save email in auth store
+        navigate("/admin/verify-code");
+      } else {
+        message.error(response.data?.message || "Failed to send reset instructions.");
+      }
+    } catch (error) {
+      console.error(error);
+      message.error(error.response?.data?.message || "Something went wrong!");
+    } finally {
       setLoading(false);
-      navigate("/admin/verify-code");
-    }, 1000);
+      setStoredEmail(email);
+       navigate("/admin/verify-code"); // Ensure email is stored even if there's an error, for retry purposes
+    }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#f9fafb]">
       <div className="py-10 md:py-12 mx-2 md:mx-0 px-6 md:px-10 rounded-2xl w-[580px] h-[525px] bg-white border-2 border-[#eef6ff] mt-10">
-       <div className="flex justify-center">
-         <img className="w-40 h-40" src={brandlogo} alt="brandlogo" />
-       </div>
+        <div className="flex justify-center">
+          <img className="w-40 h-40" src={brandlogo} alt="brandlogo" />
+        </div>
         <h1 className="my-2 font-bold">Forget password</h1>
-        <p className="mb-4 text-gray-600 ">
+        <p className="mb-4 text-gray-600">
           Enter your email address to receive password reset instructions
         </p>
 
@@ -46,7 +66,7 @@ const AdminForgatePassword = () => {
             <div className="text-center">
               <button
                 type="submit"
-                className=" bg-[#71ABE0] w-full text-white py-3 px-20 rounded-lg"
+                className="bg-[#71ABE0] w-full text-white py-3 px-20 rounded-lg"
                 disabled={loading}
               >
                 {loading ? "Sending..." : "Send a Code"}
@@ -58,8 +78,8 @@ const AdminForgatePassword = () => {
             Remember your password?{" "}
             <button
               type="button"
-              className=" hover:underline"
-              onClick={() => navigate("/admin/sign-in")}
+              className="hover:underline"
+              onClick={() => navigate("/sign-in")}
             >
               Sign In
             </button>
