@@ -19,6 +19,7 @@ const userId = user?.id;
     async function fetchDashboard() {
       try {
         const response = await api.get(`/projects/dashboard/${userId}`);
+        console.log(response, userId, "use")
         if (response.data.success) {
           setDashboardData({
             totalProjects: response.data.data.totalProjects,

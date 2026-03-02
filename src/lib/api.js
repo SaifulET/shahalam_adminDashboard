@@ -3,6 +3,7 @@ import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
 const apiBaseUrl = "https://api.ur-wsl.com";
+// const apiBaseUrl = "http://localhost:5001";
 
 const api = axios.create({
   baseURL: apiBaseUrl,
