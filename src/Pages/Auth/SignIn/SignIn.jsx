@@ -5,10 +5,12 @@ import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import brandlogo from "../../../assets/image/logo.svg";
 import { useAuthStore } from "../../../store/authStore";
 import api from "../../../lib/api";
+import { useI18n } from "../../../i18n/I18nProvider";
 
 const SignIn = () => {
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
+  const { t } = useI18n();
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -30,13 +32,13 @@ const SignIn = () => {
       // Save in Zustand
       login(user, accessToken);
 
-      message.success("Login successful");
+      message.success(t("auth.signIn.loginSuccess"));
       navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
 
       message.error(
-        error?.response?.data?.message || "Login failed. Please try again."
+        error?.response?.data?.message || t("auth.signIn.loginFailed")
       );
     } finally {
       setLoading(false);
@@ -57,32 +59,32 @@ const SignIn = () => {
 
         <div className="text-center mb-6">
           <Typography.Text className="text-base text-black">
-            Please enter your email and password to continue
+            {t("auth.signIn.description")}
           </Typography.Text>
         </div>
 
         {/* Email */}
         <Form.Item
           name="email"
-          label="Email"
+          label={t("auth.signIn.email")}
           rules={[
-            { required: true, message: "Email is required" },
-            { type: "email", message: "Enter a valid email" },
+            { required: true, message: t("auth.signIn.emailRequired") },
+            { type: "email", message: t("auth.signIn.emailInvalid") },
           ]}
         >
-          <Input placeholder="Your Email" />
+          <Input placeholder={t("auth.signIn.emailPlaceholder")} />
         </Form.Item>
 
         {/* Password */}
         <Form.Item
           name="password"
-          label="Password"
-          rules={[{ required: true, message: "Password is required" }]}
+          label={t("auth.signIn.password")}
+          rules={[{ required: true, message: t("auth.signIn.passwordRequired") }]}
         >
           <div className="relative">
             <Input
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder={t("auth.signIn.passwordPlaceholder")}
             />
             <button
               type="button"
@@ -96,11 +98,11 @@ const SignIn = () => {
 
         <div className="flex items-center justify-between mb-4">
           <Form.Item name="remember" valuePropName="checked" noStyle>
-            <Checkbox>Remember Password</Checkbox>
+            <Checkbox>{t("auth.signIn.rememberPassword")}</Checkbox>
           </Form.Item>
 
           <Link to="/forgate-password" className="text-red-600">
-            Forget Password
+            {t("auth.signIn.forgetPassword")}
           </Link>
         </div>
 
@@ -110,7 +112,7 @@ const SignIn = () => {
             disabled={loading}
             className="bg-[#0088FF] w-full font-semibold text-white py-3 rounded-md"
           >
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? t("auth.signIn.signingIn") : t("auth.signIn.submit")}
           </button>
         </Form.Item>
       </Form>

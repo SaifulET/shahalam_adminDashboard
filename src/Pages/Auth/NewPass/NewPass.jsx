@@ -8,8 +8,10 @@ import brandlogo from "../../../assets/image/logo.svg";
  // Adjust the path as needed
 import api from "../../../lib/api"; // Adjust the path as needed
 import { useAuthStore } from "../../../store/authStore";
+import { useI18n } from "../../../i18n/I18nProvider";
 const NewPass = () => {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -32,7 +34,7 @@ const NewPass = () => {
   const onFinish = async (values) => {
     // Check if email exists
     if (!email) {
-      message.error("Email not found. Please restart the process.");
+      message.error(t("auth.newPassword.emailNotFound"));
       navigate("/forgate-password");
       return;
     }
@@ -42,14 +44,14 @@ const NewPass = () => {
 
     // Validate password match
     if (newPassword !== confirmPassword) {
-      message.error("Passwords do not match!");
+      message.error(t("auth.newPassword.passwordMismatch"));
       setLoading(false);
       return;
     }
 
     // Validate password strength (optional)
     if (newPassword.length < 8) {
-      message.error("Password must be at least 8 characters long!");
+      message.error(t("auth.newPassword.passwordMin"));
       setLoading(false);
       return;
     }
@@ -64,7 +66,7 @@ const NewPass = () => {
       // Clear email from store after successful password reset
       clearEmail();
       
-      message.success("Password changed successfully");
+      message.success(t("auth.newPassword.passwordChanged"));
       
       // Redirect to sign-in page after 1 second
       setTimeout(() => {
@@ -73,7 +75,7 @@ const NewPass = () => {
       
     } catch (error) {
       // Handle error response
-      const errorMessage = error.response?.data?.message || "Failed to update password. Please try again.";
+      const errorMessage = error.response?.data?.message || t("auth.newPassword.updateFailed");
       message.error(errorMessage);
     } finally {
       setLoading(false);
@@ -85,7 +87,7 @@ const NewPass = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#f9fafb]">
         <div className="text-center p-8 bg-white rounded-2xl">
-          <p className="text-gray-600">Redirecting to forgot password...</p>
+          <p className="text-gray-600">{t("auth.newPassword.redirecting")}</p>
         </div>
       </div>
     );
@@ -107,27 +109,26 @@ const NewPass = () => {
                 <img src={brandlogo} alt="brandlogo" className="w-40 h-40 my-3" />
               </div>
               <h2 className="mb-4 text-2xl font-bold text-gray-700 md:text-3xl">
-                Create New Password
+                {t("auth.newPassword.title")}
               </h2>
               <Typography.Text className="text-base text-gray-600">
-                Create a new password for <span className="font-semibold">{email}</span>. 
-                Ensure it differs from previous ones for security.
+                {t("auth.newPassword.description", { email })}
               </Typography.Text>
             </div>
 
             <Form.Item
               name="newPassword"
-              label={<p className="text-md">New Password</p>}
+              label={<p className="text-md">{t("auth.newPassword.newPassword")}</p>}
               rules={[
-                { required: true, message: "Please input your new password!" },
-                { min: 8, message: "Password must be at least 8 characters!" }
+                { required: true, message: t("auth.newPassword.newPasswordRequired") },
+                { min: 8, message: t("auth.newPassword.passwordMin") }
               ]}
               hasFeedback
             >
               <div className="relative flex items-center">
                 <Input
                   type={showPassword ? "text" : "password"}
-                  placeholder="New Password"
+                  placeholder={t("auth.newPassword.newPasswordPlaceholder")}
                   className="text-md"
                   disabled={loading}
                 />
@@ -146,16 +147,16 @@ const NewPass = () => {
 
             <Form.Item
               name="confirmPassword"
-              label={<p className="text-md">Confirm Password</p>}
+              label={<p className="text-md">{t("auth.newPassword.confirmPassword")}</p>}
               dependencies={['newPassword']}
               rules={[
-                { required: true, message: "Please confirm your password!" },
+                { required: true, message: t("auth.newPassword.confirmRequired") },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue('newPassword') === value) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error('Passwords do not match!'));
+                    return Promise.reject(new Error(t("auth.newPassword.passwordMismatch")));
                   },
                 }),
               ]}
@@ -164,7 +165,7 @@ const NewPass = () => {
               <div className="relative flex items-center">
                 <Input
                   type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm Password"
+                  placeholder={t("auth.newPassword.confirmPasswordPlaceholder")}
                   className="text-md"
                   disabled={loading}
                 />
@@ -194,14 +195,14 @@ const NewPass = () => {
                 type="submit"
                 disabled={loading}
               >
-                {loading ? "Updating..." : "Update Password"}
+                {loading ? t("auth.newPassword.updating") : t("auth.newPassword.submit")}
               </button>
             </Form.Item>
 
             {/* Back to sign in link */}
             <div className="text-center mt-4">
               <Link to="/sign-in" className="text-[#71ABE0] hover:underline">
-                Back to Sign In
+                {t("auth.newPassword.backToSignIn")}
               </Link>
             </div>
           </Form>

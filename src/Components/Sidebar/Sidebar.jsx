@@ -10,36 +10,38 @@ import {
 
 import { IoPersonAddSharp } from "react-icons/io5";
 import { AiOutlineCluster } from "react-icons/ai";
+import { useI18n } from "../../i18n/I18nProvider";
 
 const Sidebar = () => {
   const location = useLocation();
+  const { t } = useI18n();
 
   const menuItems = [
     {
       icon: <MdDashboard className="w-5 h-5" />,
-      label: "Dashboard",
+      label: t("sidebar.dashboard"),
       Link: "/Dashboard",
     },
     {
       icon: <Users className="w-5 h-5" />,
-      label: "Employee",
+      label: t("sidebar.employee"),
       Link: "/employee",
     },
     {
       icon: <AiOutlineCluster className="w-5 h-5" />,
-      label: "Projects",
+      label: t("sidebar.projects"),
       Link: "/project",
     },
     {
       icon: <IoPersonAddSharp 
  className="w-5 h-5" />,
-      label: "Add Employee",
+      label: t("sidebar.addEmployee"),
       Link: "/add-employee",
     },
    
     {
       icon: <Settings className="w-5 h-5" />,
-      label: "Settings",
+      label: t("sidebar.settings"),
       Link: "/settings",
     },
   ];

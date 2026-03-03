@@ -3,9 +3,12 @@ import { Search, Eye, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { VscDebugRestart } from "react-icons/vsc";
 import { useAuthStore } from "../../store/authStore";
 import api from "../../lib/api";
+import { useI18n } from "../../i18n/I18nProvider";
+import { formatLocalizedNumber, formatLocalizedValue } from "../../i18n/format";
 
 const BlockedList = () => {
   const { user } = useAuthStore();
+  const { locale, t } = useI18n();
   const userId = user.id;
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,7 +39,7 @@ const BlockedList = () => {
 
   useEffect(() => {
     fetchBlockedEmployees();
-  }, [userId]);
+  }, [userId, locale]);
 
   // ================= FILTER + PAGINATION =================
   const filteredUsers = users.filter((u) =>
@@ -116,12 +119,14 @@ const BlockedList = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US", {
       month: '2-digit',
       day: '2-digit',
       year: 'numeric'
     });
   };
+
+  const formatNumber = (value) => formatLocalizedNumber(value, locale);
 
   const renderPaginationNumbers = () => {
     if (totalPages <= 1) return [];
@@ -152,14 +157,14 @@ const BlockedList = () => {
         <div className="px-6 py-4 mb-6 rounded-tl-lg rounded-tr-lg bg-[#71ABE0]">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-semibold text-white">
-              Blocked Employees
+              {t("blockedList.title")}
             </h1>
 
             <div className="relative">
               <Search className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 left-3 top-1/2" />
               <input
                 type="text"
-                placeholder="Search User"
+                placeholder={t("blockedList.searchUser")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-64 py-2 pl-10 pr-4 text-sm bg-white border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-300"
@@ -181,22 +186,22 @@ const BlockedList = () => {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                        S.ID
+                        {t("recentEmployees.sid")}
                       </th>
                       <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                        Full Name
+                        {t("recentEmployees.fullName")}
                       </th>
                       <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                        Email
+                        {t("recentEmployees.email")}
                       </th>
                       <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                        Phone
+                        {t("recentEmployees.phone")}
                       </th>
                       <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                        Joined Date
+                        {t("userList.joinedDate")}
                       </th>
                       <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                        Action
+                        {t("recentEmployees.action")}
                       </th>
                     </tr>
                   </thead>
@@ -205,14 +210,14 @@ const BlockedList = () => {
                     {currentUsers.length === 0 ? (
                       <tr>
                         <td colSpan="6" className="px-6 py-20 text-center text-gray-500">
-                          No blocked employees found
+                          {t("blockedList.empty")}
                         </td>
                       </tr>
                     ) : (
                       currentUsers.map((user, index) => (
                         <tr key={user._id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
-                            {String(startIndex + index + 1).padStart(2, "0")}
+                            {formatNumber(startIndex + index + 1)}
                           </td>
 
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -233,11 +238,11 @@ const BlockedList = () => {
                           </td>
 
                           <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
-                            {user.email}
+                            {formatLocalizedValue(user.email, locale)}
                           </td>
 
                           <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
-                            {user.phone || "N/A"}
+                            {user.phone ? formatLocalizedValue(user.phone, locale) : t("recentEmployees.na")}
                           </td>
 
                           <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
@@ -249,7 +254,7 @@ const BlockedList = () => {
                               <button
                                 onClick={() => handleBanUser(user)}
                                 className="p-1 text-[#71ABE0] rounded-full hover:bg-blue-50"
-                                title="Unblock User"
+                                title={t("blockedList.unblockUser")}
                               >
                                 <VscDebugRestart size={18} />
                               </button>
@@ -257,7 +262,7 @@ const BlockedList = () => {
                               <button
                                 onClick={() => handleViewUser(user._id)}
                                 className="flex items-center gap-1 p-1 text-[#71ABE0] rounded-full hover:bg-blue-50"
-                                title="View Details"
+                                title={t("blockedList.viewDetails")}
                               >
                                 <Eye size={18} />
                               </button>
@@ -274,7 +279,11 @@ const BlockedList = () => {
               {totalPages > 1 && (
                 <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200">
                   <span className="text-sm text-gray-700">
-                    SHOWING {startIndex + 1}-{Math.min(startIndex + usersPerPage, totalUsers)} OF {totalUsers}
+                    {t("common.showing", {
+                      from: formatNumber(startIndex + 1),
+                      to: formatNumber(Math.min(startIndex + usersPerPage, totalUsers)),
+                      total: formatNumber(totalUsers),
+                    })}
                   </span>
 
                   <div className="flex items-center gap-2">
@@ -299,7 +308,7 @@ const BlockedList = () => {
                             : "text-gray-700 hover:bg-gray-100"
                         }`}
                       >
-                        {page}
+                        {typeof page === "number" ? formatNumber(page) : page}
                       </button>
                     ))}
 
@@ -324,7 +333,7 @@ const BlockedList = () => {
           <div className="w-full max-w-md mx-4 bg-white rounded-lg shadow-xl">
             <div className="flex items-center justify-between p-6 border-b">
               <h2 className="flex-1 text-2xl font-semibold text-center text-[#71ABE0]">
-                Employee Details
+                {t("recentEmployees.employeeDetails")}
               </h2>
               <button
                 onClick={handleCloseModal}
@@ -350,33 +359,33 @@ const BlockedList = () => {
 
               <div className="space-y-4">
                 <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Name</span>
+                  <span className="font-medium text-gray-700">{t("recentEmployees.name")}</span>
                   <span className="text-gray-900">{selectedUser.name}</span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Email</span>
-                  <span className="text-gray-900">{selectedUser.email}</span>
+                  <span className="font-medium text-gray-700">{t("recentEmployees.email")}</span>
+                  <span className="text-gray-900">{formatLocalizedValue(selectedUser.email, locale)}</span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Phone</span>
-                  <span className="text-gray-900">{selectedUser.phone || "N/A"}</span>
+                  <span className="font-medium text-gray-700">{t("recentEmployees.phone")}</span>
+                  <span className="text-gray-900">{selectedUser.phone ? formatLocalizedValue(selectedUser.phone, locale) : t("recentEmployees.na")}</span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Status</span>
+                  <span className="font-medium text-gray-700">{t("recentEmployees.status")}</span>
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                     selectedUser.status === 'active' 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-red-100 text-red-800'
                   }`}>
-                    {selectedUser.status}
+                    {selectedUser.status === "active" ? t("recentEmployees.active") : t("recentEmployees.blocked")}
                   </span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Joining Date</span>
+                  <span className="font-medium text-gray-700">{t("recentEmployees.joiningDate")}</span>
                   <span className="text-gray-900">{formatDate(selectedUser.joiningDate)}</span>
                 </div>
               </div>
@@ -387,7 +396,7 @@ const BlockedList = () => {
                 onClick={handleCloseModal}
                 className="flex-1 px-4 py-2 text-sm font-medium bg-white border rounded-lg hover:bg-gray-50"
               >
-                Cancel
+                {t("recentEmployees.cancel")}
               </button>
 
               <button
@@ -397,7 +406,7 @@ const BlockedList = () => {
                 }}
                 className="flex-1 px-4 py-2 text-sm font-medium text-white bg-[#71ABE0] rounded-lg hover:bg-[#5f96c7]"
               >
-                Unblock
+                {t("blockedList.unblock")}
               </button>
             </div>
           </div>
@@ -409,10 +418,10 @@ const BlockedList = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="w-full max-w-sm p-6 mx-4 text-center bg-white rounded-lg shadow-xl">
             <h2 className="mb-4 text-xl font-semibold text-gray-900">
-              Unblock Employee?
+              {t("blockedList.unblockEmployeeQ")}
             </h2>
             <p className="mb-6 text-gray-600">
-              Are you sure you want to unblock <span className="font-semibold">{userToBlock.name}</span>?
+              {t("blockedList.unblockConfirm", { name: userToBlock.name })}
             </p>
 
             <div className="flex gap-3">
@@ -420,7 +429,7 @@ const BlockedList = () => {
                 onClick={handleCancelBlock}
                 className="flex-1 px-4 py-2 text-sm bg-white border rounded-lg hover:bg-gray-50"
               >
-                Cancel
+                {t("recentEmployees.cancel")}
               </button>
 
               <button
@@ -428,7 +437,7 @@ const BlockedList = () => {
                 disabled={loading}
                 className="flex-1 px-4 py-2 text-sm text-white bg-[#71ABE0] rounded-lg hover:bg-[#5f96c7] disabled:opacity-50"
               >
-                {loading ? "Unblocking..." : "Yes, Unblock"}
+                {loading ? t("blockedList.unblocking") : t("blockedList.yesUnblock")}
               </button>
             </div>
           </div>

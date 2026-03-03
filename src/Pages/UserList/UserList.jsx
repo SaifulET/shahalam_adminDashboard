@@ -3,9 +3,12 @@ import { Search, Eye, Ban, ChevronLeft, ChevronRight, X } from "lucide-react"
 import { Link } from "react-router-dom"
 import api from "../../lib/api"
 import { useAuthStore } from "../../store/authStore"
+import { useI18n } from "../../i18n/I18nProvider"
+import { formatLocalizedNumber, formatLocalizedValue } from "../../i18n/format"
 
 const UserList = () => {
   const { user } = useAuthStore()
+  const { locale, t } = useI18n()
 
 
   const [users, setUsers] = useState([])
@@ -35,7 +38,7 @@ const UserList = () => {
 
   useEffect(() => {
     if (user?.id) fetchEmployees()
-  }, [user?.id])
+  }, [user?.id, locale])
 
   // Search filter
   const filteredUsers = users.filter((user) =>
@@ -92,7 +95,7 @@ const UserList = () => {
       fetchEmployees()
     } catch (error) {
       console.error("Block failed:", error)
-      alert("Failed to block employee")
+      alert(t("userList.blockFailed"))
     } finally {
       setLoading(false)
     }
@@ -104,12 +107,14 @@ const UserList = () => {
   }
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(locale === "ar" ? "ar-EG" : "en-US", {
       month: '2-digit',
       day: '2-digit',
       year: 'numeric'
     })
   }
+
+  const formatNumber = (value) => formatLocalizedNumber(value, locale)
 
   const renderPaginationNumbers = () => {
     const pages = []
@@ -142,7 +147,7 @@ const UserList = () => {
         <div className="px-6 py-4 mb-6 rounded-tl-lg rounded-tr-lg bg-[#71ABE0]">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-semibold text-white">
-              Employee List
+              {t("userList.title")}
             </h1>
 
             <div className="flex items-center gap-4">
@@ -150,7 +155,7 @@ const UserList = () => {
                 <Search className="absolute w-4 h-4 text-gray-400 -translate-y-1/2 left-3 top-1/2" />
                 <input
                   type="text"
-                  placeholder="Search Employee"
+                  placeholder={t("userList.searchEmployee")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-64 py-2 pl-10 pr-4 text-sm bg-white border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-300"
@@ -159,7 +164,7 @@ const UserList = () => {
 
               <Link to="/block-list">
                 <button className="px-4 py-2 text-sm font-medium bg-white rounded-lg text-cyan-600 hover:bg-gray-50">
-                  Blocked Users
+                  {t("userList.blockedUsers")}
                 </button>
               </Link>
             </div>
@@ -179,25 +184,25 @@ const UserList = () => {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                        S.ID
+                        {t("recentEmployees.sid")}
                       </th>
                       <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                        Full Name
+                        {t("recentEmployees.fullName")}
                       </th>
                       <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                        Email
+                        {t("recentEmployees.email")}
                       </th>
                       <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                        Phone No
+                        {t("userList.phoneNo")}
                       </th>
                       <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                        Status
+                        {t("recentEmployees.status")}
                       </th>
                       <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                        Joined Date
+                        {t("userList.joinedDate")}
                       </th>
                       <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-[#71ABE0] uppercase">
-                        Action
+                        {t("recentEmployees.action")}
                       </th>
                     </tr>
                   </thead>
@@ -207,7 +212,7 @@ const UserList = () => {
                       currentUsers.map((user, index) => (
                         <tr key={user._id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
-                            {String(startIndex + index + 1).padStart(2, "0")}
+                            {formatNumber(startIndex + index + 1)}
                           </td>
 
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -225,15 +230,15 @@ const UserList = () => {
                             </div>
                           </td>
 
-                          <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{user.email}</td>
-                          <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{user.phone || "N/A"}</td>
+                          <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{formatLocalizedValue(user.email, locale)}</td>
+                          <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">{user.phone ? formatLocalizedValue(user.phone, locale) : t("recentEmployees.na")}</td>
                           <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                               user.status === 'active' 
                                 ? 'bg-green-100 text-green-800' 
                                 : 'bg-red-100 text-red-800'
                             }`}>
-                              {user.status}
+                              {user.status === "active" ? t("recentEmployees.active") : t("recentEmployees.blocked")}
                             </span>
                           </td>
 
@@ -264,7 +269,7 @@ const UserList = () => {
                     ) : (
                       <tr>
                         <td colSpan="7" className="px-6 py-20 text-center text-gray-500">
-                          No employees found
+                          {t("recentEmployees.empty")}
                         </td>
                       </tr>
                     )}
@@ -275,7 +280,11 @@ const UserList = () => {
               {/* Pagination */}
               <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200">
                 <span className="text-sm text-gray-700">
-                  SHOWING {startIndex + 1}-{Math.min(startIndex + usersPerPage, totalUsers)} OF {totalUsers}
+                  {t("common.showing", {
+                    from: formatNumber(startIndex + 1),
+                    to: formatNumber(Math.min(startIndex + usersPerPage, totalUsers)),
+                    total: formatNumber(totalUsers),
+                  })}
                 </span>
 
                 <div className="flex items-center gap-2">
@@ -300,7 +309,7 @@ const UserList = () => {
                           : "text-gray-700 hover:bg-gray-100"
                       }`}
                     >
-                      {page}
+                      {typeof page === "number" ? formatNumber(page) : page}
                     </button>
                   ))}
 
@@ -324,7 +333,7 @@ const UserList = () => {
           <div className="w-full max-w-md mx-4 bg-white rounded-lg shadow-xl">
             <div className="flex items-center justify-between p-6 border-b">
               <h2 className="flex-1 text-2xl font-semibold text-center text-[#71ABE0]">
-                Employee Details
+                {t("recentEmployees.employeeDetails")}
               </h2>
               <button onClick={handleCloseModal} className="ml-4 text-gray-400 hover:text-gray-600">
                 <X className="w-5 h-5" />
@@ -347,33 +356,33 @@ const UserList = () => {
 
               <div className="space-y-4">
                 <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Name</span>
+                  <span className="font-medium text-gray-700">{t("recentEmployees.name")}</span>
                   <span className="text-gray-900">{selectedUser.name}</span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Email</span>
-                  <span className="text-gray-900">{selectedUser.email}</span>
+                  <span className="font-medium text-gray-700">{t("recentEmployees.email")}</span>
+                  <span className="text-gray-900">{formatLocalizedValue(selectedUser.email, locale)}</span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Phone</span>
-                  <span className="text-gray-900">{selectedUser.phone || "N/A"}</span>
+                  <span className="font-medium text-gray-700">{t("recentEmployees.phone")}</span>
+                  <span className="text-gray-900">{selectedUser.phone ? formatLocalizedValue(selectedUser.phone, locale) : t("recentEmployees.na")}</span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Status</span>
+                  <span className="font-medium text-gray-700">{t("recentEmployees.status")}</span>
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                     selectedUser.status === 'active' 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-red-100 text-red-800'
                   }`}>
-                    {selectedUser.status}
+                    {selectedUser.status === "active" ? t("recentEmployees.active") : t("recentEmployees.blocked")}
                   </span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Joining Date</span>
+                  <span className="font-medium text-gray-700">{t("recentEmployees.joiningDate")}</span>
                   <span className="text-gray-900">{formatDate(selectedUser.joiningDate)}</span>
                 </div>
               </div>
@@ -384,7 +393,7 @@ const UserList = () => {
                 onClick={handleCloseModal}
                 className="flex-1 px-4 py-2 text-sm font-medium bg-white border rounded-lg hover:bg-gray-50"
               >
-                Cancel
+                {t("recentEmployees.cancel")}
               </button>
 
               {selectedUser.status !== 'blocked' && (
@@ -395,7 +404,7 @@ const UserList = () => {
                   }}
                   className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600"
                 >
-                  Block
+                  {t("recentEmployees.block")}
                 </button>
               )}
             </div>
@@ -408,7 +417,7 @@ const UserList = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
           <div className="w-full max-w-sm p-6 mx-4 text-center bg-white rounded-lg shadow-xl">
             <h2 className="mb-6 text-xl font-semibold text-gray-900">
-              Do you want to block {userToBlock.name}?
+              {t("recentEmployees.confirmBlockQuestion", { name: userToBlock.name })}
             </h2>
 
             <div className="flex gap-3">
@@ -416,7 +425,7 @@ const UserList = () => {
                 onClick={handleCancelBlock}
                 className="flex-1 px-4 py-2 text-sm bg-white border rounded-lg hover:bg-gray-50"
               >
-                Cancel
+                {t("recentEmployees.cancel")}
               </button>
 
               <button
@@ -424,7 +433,7 @@ const UserList = () => {
                 disabled={loading}
                 className="flex-1 px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50"
               >
-                {loading ? "Blocking..." : "Yes, Confirm"}
+                {loading ? t("userList.blocking") : t("recentEmployees.confirm")}
               </button>
             </div>
           </div>

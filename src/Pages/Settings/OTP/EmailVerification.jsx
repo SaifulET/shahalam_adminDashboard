@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
  // Adjust the path as neededmport axios from 'axios';
 import api from '../../../lib/api';
 import { useAuthStore } from '../../../store/authStore';
+import { useI18n } from '../../../i18n/I18nProvider';
 
 export default function EmailVerification() {
+  const { t } = useI18n();
   const [code, setCode] = useState(['', '', '', '']);
   const [isResending, setIsResending] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -46,13 +48,13 @@ export default function EmailVerification() {
     
     // Validate OTP
     if (verificationCode.length !== 4) {
-      setError('Please enter complete 4-digit code');
+      setError(t("auth.verify.codeIncomplete"));
       return;
     }
 
     // Check if email exists in store
     if (!email) {
-      setError('Email not found. Please try again from forgot password.');
+      setError(t("auth.verify.emailMissingRestart"));
       setTimeout(() => {
         navigate("/settings/forget-password");
       }, 2000);
@@ -77,7 +79,7 @@ export default function EmailVerification() {
       navigate("/settings/set-new-password");
       
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid verification code. Please try again.');
+      setError(err.response?.data?.message || t("auth.verify.invalidCode"));
     } finally {
       setIsVerifying(false);
     }
@@ -85,7 +87,7 @@ export default function EmailVerification() {
 
   const handleResend = async () => {
     if (!email) {
-      setError('Email not found. Please try again from forgot password.');
+      setError(t("auth.verify.emailMissingRestart"));
       setTimeout(() => {
         navigate("/settings/forget-password");
       }, 2000);
@@ -108,7 +110,7 @@ export default function EmailVerification() {
       console.log('OTP resent successfully');
       
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to resend code. Please try again.');
+      setError(err.response?.data?.message || t("auth.verify.resendFailed"));
     } finally {
       setIsResending(false);
     }
@@ -120,7 +122,7 @@ export default function EmailVerification() {
       <div className="min-h-screen bg-gray-100 flex items-start justify-center py-4 mt-20">
         <div className="w-full bg-white rounded-lg shadow-sm overflow-hidden mt-8 p-8">
           <p className="text-red-500 text-center">
-            No email found. Redirecting to forgot password...
+            {t("auth.verify.redirecting")}
           </p>
         </div>
       </div>
@@ -147,7 +149,7 @@ export default function EmailVerification() {
               />
             </svg>
           </button>
-          <h1 className="text-white text-2xl font-semibold">Email Verification</h1>
+          <h1 className="text-white text-2xl font-semibold">{t("settingsOtp.emailVerification")}</h1>
         </div>
 
         {/* Content */}
@@ -162,7 +164,7 @@ export default function EmailVerification() {
 
             {/* Instruction Text */}
             <p className="text-gray-800 text-center text-lg mb-8">
-              Please check your email. We have sent a code to <br />
+              {t("auth.verify.description")} <br />
               <span className="font-semibold">{email}</span>
             </p>
 
@@ -188,13 +190,13 @@ export default function EmailVerification() {
 
             {/* Resend Link */}
             <div className="flex justify-between items-center mb-6 px-1">
-              <span className="text-sm text-gray-600">Didn't receive code?</span>
+              <span className="text-sm text-gray-600">{t("settingsOtp.didNotReceiveCode")}</span>
               <button
                 onClick={handleResend}
                 disabled={isResending || isVerifying}
                 className="text-sm text-gray-800 underline hover:text-blue-600 transition-colors disabled:opacity-50"
               >
-                {isResending ? 'Sending...' : 'Resend'}
+                {isResending ? t("auth.forgot.sending") : t("auth.verify.resend")}
               </button>
             </div>
 
@@ -206,7 +208,7 @@ export default function EmailVerification() {
                 (isVerifying || isResending) ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
-              {isVerifying ? 'Verifying...' : 'Verify'}
+              {isVerifying ? t("auth.verify.verifying") : t("settingsOtp.verify")}
             </button>
           </div>
         </div>

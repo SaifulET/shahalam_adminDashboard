@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../../lib/api';
 import { useAuthStore } from '../../../store/authStore';
+import { useI18n } from '../../../i18n/I18nProvider';
 
 export default function ForgotPassword() {
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -28,7 +30,7 @@ const setStoredEmail = useAuthStore((state) => state.setEmail);
       });
     } catch (err) {
       // Handle error response
-      setError(err.response?.data?.message || 'Failed to send OTP. Please try again.');
+      setError(err.response?.data?.message || t("auth.forgot.resetFailed"));
     } finally {
       setLoading(false);
     }
@@ -56,13 +58,13 @@ const setStoredEmail = useAuthStore((state) => state.setEmail);
               </svg>
             </button>
           </Link>
-          <h1 className="text-2xl font-medium">Forget Password</h1>
+          <h1 className="text-2xl font-medium">{t("auth.forgot.title")}</h1>
         </div>
 
         {/* Content */}
         <div className="bg-white p-8 rounded-b-lg shadow-sm">
           <p className="text-gray-800 text-lg mb-8">
-            Enter your email address to get a verification code for resetting your password.
+            {t("auth.forgot.description")}
           </p>
 
           {/* Error message display */}
@@ -75,13 +77,13 @@ const setStoredEmail = useAuthStore((state) => state.setEmail);
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
               <label className="block text-gray-800 font-medium mb-3">
-                Email
+                {t("auth.signIn.email")}
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
+                placeholder={t("auth.forgot.emailPlaceholder")}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-600 placeholder-gray-400"
                 disabled={loading}
@@ -95,7 +97,7 @@ const setStoredEmail = useAuthStore((state) => state.setEmail);
                 loading ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
-              {loading ? 'Sending...' : 'Get OTP'}
+              {loading ? t("auth.forgot.sending") : t("settingsOtp.getOtp")}
             </button>
           </form>
         </div>

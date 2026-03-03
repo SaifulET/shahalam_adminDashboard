@@ -5,17 +5,16 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { Bell, MessageSquareMore } from "lucide-react";
 import adminImage from "../../assets/image/adminkickclick.jpg";
 import { useAuthStore } from "../../store/authStore";
+import { useI18n } from "../../i18n/I18nProvider";
 
 const Header = ({ showDrawer }) => {
-  
-  
  const user = useAuthStore().user
-  
-console.log("Header user:", user);
-  const adminProfile = {
-    name: user.name,
+ const { t } = useI18n();
+
+ const adminProfile = {
+    name: user?.name || t("header.userFallback"),
     role: "admin",
-    profile: user.profileImage || adminImage,
+    profile: user?.profileImage || adminImage,
   };
 
  
@@ -36,9 +35,9 @@ console.log("Header user:", user);
           />
           <div>
             <h2 className="font-semibold text-gray-800 text-md">
-              Welcome, {adminProfile.name}
+              {t("header.welcome", { name: adminProfile.name })}
             </h2>
-            <p className="text-sm text-gray-500">Have a nice day!</p>
+            <p className="text-sm text-gray-500">{t("header.haveNiceDay")}</p>
           </div>
         </div>
 

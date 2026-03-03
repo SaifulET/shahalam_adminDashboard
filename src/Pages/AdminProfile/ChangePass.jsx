@@ -3,8 +3,10 @@ import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
+import { useI18n } from '../../i18n/I18nProvider';
 const ChangePassword = () => {
   const {user}= useAuthStore()
+  const { t } = useI18n();
   const userId = user?.id; // dynamically passed from props or store
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -17,12 +19,12 @@ const ChangePassword = () => {
 
   const handleSubmit = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      alert('Please fill all fields!');
+      alert(t("changePassword.fillAll"));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      alert('New passwords do not match!');
+      alert(t("changePassword.mismatch"));
       return;
     }
 
@@ -34,14 +36,14 @@ const ChangePassword = () => {
       });
 
       if (response.status === 200) {
-        alert('Password changed successfully!');
+        alert(t("changePassword.success"));
         navigate('/settings');
       } else {
-        alert(response.data?.message || 'Failed to change password.');
+        alert(response.data?.message || t("changePassword.failed"));
       }
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.message || 'Something went wrong!');
+      alert(error.response?.data?.message || t("common.somethingWrong"));
     }
   };
 
@@ -61,14 +63,14 @@ const ChangePassword = () => {
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-xl font-medium text-white">Change Password</h1>
+          <h1 className="text-xl font-medium text-white">{t("changePassword.title")}</h1>
         </div>
 
         {/* Form */}
         <div className="max-w-md p-6 mx-auto space-y-5">
           {/* Current Password */}
           <PasswordInput
-            label="Current Password"
+            label={t("changePassword.currentPassword")}
             value={currentPassword}
             show={showCurrentPassword}
             setShow={setShowCurrentPassword}
@@ -77,7 +79,7 @@ const ChangePassword = () => {
 
           {/* New Password */}
           <PasswordInput
-            label="New Password"
+            label={t("changePassword.newPassword")}
             value={newPassword}
             show={showNewPassword}
             setShow={setShowNewPassword}
@@ -86,7 +88,7 @@ const ChangePassword = () => {
 
           {/* Confirm New Password */}
           <PasswordInput
-            label="Confirm New Password"
+            label={t("changePassword.confirmNewPassword")}
             value={confirmPassword}
             show={showConfirmPassword}
             setShow={setShowConfirmPassword}
@@ -94,7 +96,7 @@ const ChangePassword = () => {
           />
 
           <Link to="/settings/forget-password" className="underline text-blue-500 text-right">
-            Forget Password
+            {t("auth.signIn.forgetPassword")}
           </Link>
 
           {/* Submit Button */}
@@ -102,7 +104,7 @@ const ChangePassword = () => {
             onClick={handleSubmit}
             className="w-full py-3 font-medium text-white transition-colors bg-[#71ABE0] rounded hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
           >
-            Change Password
+            {t("changePassword.title")}
           </button>
         </div>
       </div>

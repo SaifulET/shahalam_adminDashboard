@@ -3,8 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { Building2, Home, Building } from 'lucide-react';
 import api from '../../lib/api'; // make sure this is your API instance
 import { useAuthStore } from '../../store/authStore';
+import { useI18n } from '../../i18n/I18nProvider';
+import { formatLocalizedNumber } from '../../i18n/format';
 
 export default function ProjectsDashboard() {
+  const { t, locale } = useI18n();
   const [dashboardData, setDashboardData] = useState({
     totalProjects: 0,
     totalActiveEmployees: 0,
@@ -43,15 +46,15 @@ const userId = user?.id;
           <div className="grid grid-cols-2 gap-8">
             <div className="text-center">
               <h2 className="font-poppins font-bold text-[28px] leading-[34px] tracking-[0px] text-gray-900 mb-2">
-                {dashboardData.totalProjects}
+                {formatLocalizedNumber(dashboardData.totalProjects, locale)}
               </h2>
-              <p className="text-gray-600 text-lg">Total Project</p>
+              <p className="text-gray-600 text-lg">{t("dashboard.totalProject")}</p>
             </div>
             <div className="text-center border-l border-gray-200">
               <h2 className="font-poppins font-bold text-[28px] leading-[34px] tracking-[0px] text-gray-900 mb-2">
-                {dashboardData.totalActiveEmployees}
+                {formatLocalizedNumber(dashboardData.totalActiveEmployees, locale)}
               </h2>
-              <p className="text-gray-600 text-lg">Active Employee</p>
+              <p className="text-gray-600 text-lg">{t("dashboard.activeEmployee")}</p>
             </div>
           </div>
         </div>
@@ -59,7 +62,7 @@ const userId = user?.id;
         {/* Recent Projects Section */}
         <div>
           <h3 className="font-inter font-semibold text-[18px] leading-[28px] tracking-[-0.5px] text-gray-900 mb-6">
-            Recent Projects
+            {t("dashboard.recentProjects")}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {dashboardData.recentProjects.map((project, index) => {
@@ -76,7 +79,9 @@ const userId = user?.id;
                     <IconComponent className={`w-8 h-8 ${iconColors[index % iconColors.length]}`} />
                   </div>
                   <h4 className="text-xl font-bold text-gray-900 mb-2">{project.name}</h4>
-                  <p className="text-gray-500">{project.unitCount} properties</p>
+                  <p className="text-gray-500">
+                    {t("dashboard.properties", { count: formatLocalizedNumber(project.unitCount, locale) })}
+                  </p>
                 </div>
               );
             })}

@@ -1,0 +1,218 @@
+{
+  "language": {
+    "label": "Language",
+    "english": "English",
+    "arabic": "Arabic"
+  },
+  "header": {
+    "welcome": "Welcome, {{name}}",
+    "haveNiceDay": "Have a nice day!",
+    "userFallback": "User"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "employee": "Employee",
+    "projects": "Projects",
+    "addEmployee": "Add Employee",
+    "settings": "Settings"
+  },
+  "common": {
+    "prev": "Prev",
+    "next": "Next",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "saveChanges": "Save Changes",
+    "somethingWrong": "Something went wrong!",
+    "showing": "SHOWING {{from}}-{{to}} OF {{total}}"
+  },
+  "dashboard": {
+    "totalProject": "Total Projects",
+    "activeEmployee": "Active Employees",
+    "recentProjects": "Recent Projects",
+    "properties": "{{count}} properties"
+  },
+  "project": {
+    "sid": "S.ID",
+    "projectName": "Project Name",
+    "location": "Location",
+    "status": "Status",
+    "createdDate": "Created Date",
+    "action": "Action",
+    "loading": "Loading projects...",
+    "empty": "No projects found.",
+    "active": "Active",
+    "deleteConfirm": "Are you sure you want to delete this project?"
+  },
+  "recentEmployees": {
+    "title": "Recent Employees",
+    "empty": "No employees found",
+    "employeeDetails": "Employee Details",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "status": "Status",
+    "joiningDate": "Joining Date",
+    "cancel": "Cancel",
+    "block": "Block",
+    "confirmBlockQuestion": "Do you want to block {{name}}?",
+    "confirm": "Yes, Confirm",
+    "sid": "S.ID",
+    "fullName": "Full Name",
+    "action": "Action",
+    "na": "N/A",
+    "active": "Active",
+    "blocked": "Blocked"
+  },
+  "userList": {
+    "title": "Employee List",
+    "searchEmployee": "Search Employee",
+    "blockedUsers": "Blocked Users",
+    "phoneNo": "Phone No",
+    "joinedDate": "Joined Date",
+    "blockFailed": "Failed to block employee",
+    "blocking": "Blocking..."
+  },
+  "addEmployee": {
+    "title": "Employee Management",
+    "profileImage": "Profile Image",
+    "uploadImage": "Upload Image",
+    "adding": "Adding...",
+    "add": "Add",
+    "success": "Employee added successfully!",
+    "failed": "Failed to add employee"
+  },
+  "settings": {
+    "title": "Settings",
+    "changePassword": "Change Password"
+  },
+  "profile": {
+    "title": "Company Profile",
+    "loadFailed": "Failed to load profile data",
+    "updateSuccess": "Profile updated successfully",
+    "updateFailed": "Failed to update profile",
+    "upload": "Upload",
+    "newImageSelected": "New image selected",
+    "companyName": "Company Name",
+    "tagline": "Tagline",
+    "taglinePlaceholder": "Brief company description or tagline",
+    "aboutCompany": "About Company",
+    "aboutPlaceholder": "Provide a detailed description of your company...",
+    "addressContact": "Address & Contact Information",
+    "addressLine": "Address Line",
+    "streetAddress": "Street address",
+    "country": "Country",
+    "selectCountry": "Select country",
+    "city": "City",
+    "postalCode": "Postal code",
+    "phoneNumber": "Phone Number",
+    "emailAddress": "Email Address",
+    "website": "Website",
+    "socialMedia": "Social Media",
+    "countries": {
+      "us": "United States",
+      "uk": "United Kingdom",
+      "ca": "Canada",
+      "au": "Australia",
+      "de": "Germany",
+      "fr": "France",
+      "jp": "Japan",
+      "sa": "Saudi Arabia"
+    }
+  },
+  "changePassword": {
+    "title": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "fillAll": "Please fill all fields!",
+    "mismatch": "New passwords do not match!",
+    "success": "Password changed successfully!",
+    "failed": "Failed to change password."
+  },
+  "blockedList": {
+    "title": "Blocked Employees",
+    "searchUser": "Search User",
+    "empty": "No blocked employees found",
+    "unblockUser": "Unblock User",
+    "viewDetails": "View Details",
+    "unblock": "Unblock",
+    "unblockEmployeeQ": "Unblock Employee?",
+    "unblockConfirm": "Are you sure you want to unblock {{name}}?",
+    "unblocking": "Unblocking...",
+    "yesUnblock": "Yes, Unblock"
+  },
+  "settingsOtp": {
+    "getOtp": "Get OTP",
+    "emailVerification": "Email Verification",
+    "didNotReceiveCode": "Didn't receive code?",
+    "verify": "Verify",
+    "setNewPassword": "Set New Password"
+  },
+  "auth": {
+    "signIn": {
+      "description": "Please enter your email and password to continue",
+      "email": "Email",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Enter a valid email",
+      "emailPlaceholder": "Your Email",
+      "password": "Password",
+      "passwordRequired": "Password is required",
+      "passwordPlaceholder": "Password",
+      "rememberPassword": "Remember Password",
+      "forgetPassword": "Forget Password",
+      "signingIn": "Signing in...",
+      "submit": "Sign in",
+      "loginSuccess": "Login successful",
+      "loginFailed": "Login failed. Please try again."
+    },
+    "forgot": {
+      "title": "Forget password",
+      "description": "Enter your email address to receive password reset instructions",
+      "emailPlaceholder": "Enter your email",
+      "emailRequired": "Please input your email!",
+      "emailInvalid": "Please enter a valid email!",
+      "sending": "Sending...",
+      "sendCode": "Send a Code",
+      "rememberPassword": "Remember your password?",
+      "signIn": "Sign In",
+      "resetSent": "Reset instructions sent to your email!",
+      "resetFailed": "Failed to send reset instructions.",
+      "somethingWrong": "Something went wrong!"
+    },
+    "verify": {
+      "title": "Verify Your Code",
+      "description": "Please check your email. We have sent a code to",
+      "descriptionSuffix": "Enter the 4-digit code mentioned in the email",
+      "didNotReceive": "Didn't receive the email?",
+      "resend": "Resend",
+      "verifying": "Verifying...",
+      "submit": "Verify Code",
+      "sessionExpired": "Session expired. Please try again from forgot password.",
+      "redirecting": "Redirecting to forgot password...",
+      "emailMissing": "Email not found. Please try again.",
+      "resendFailed": "Failed to resend code. Please try again.",
+      "codeIncomplete": "Please enter complete 4-digit code",
+      "emailMissingRestart": "Email not found. Please restart the process.",
+      "invalidCode": "Invalid verification code. Please try again."
+    },
+    "newPassword": {
+      "title": "Create New Password",
+      "description": "Create a new password for {{email}}. Ensure it differs from previous ones for security.",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "newPasswordPlaceholder": "New Password",
+      "confirmPasswordPlaceholder": "Confirm Password",
+      "newPasswordRequired": "Please input your new password!",
+      "passwordMin": "Password must be at least 8 characters!",
+      "confirmRequired": "Please confirm your password!",
+      "passwordMismatch": "Passwords do not match!",
+      "updating": "Updating...",
+      "submit": "Update Password",
+      "backToSignIn": "Back to Sign In",
+      "emailNotFound": "Email not found. Please restart the process.",
+      "passwordChanged": "Password changed successfully",
+      "updateFailed": "Failed to update password. Please try again.",
+      "redirecting": "Redirecting to forgot password..."
+    }
+  }
+}

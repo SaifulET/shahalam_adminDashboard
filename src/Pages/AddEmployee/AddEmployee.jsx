@@ -4,9 +4,11 @@ import { Eye, EyeOff, Upload } from 'lucide-react';
 import api from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '../../i18n/I18nProvider';
 
 export default function AddEmployee() {
   const { user } = useAuthStore();
+  const { t } = useI18n();
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -58,7 +60,7 @@ export default function AddEmployee() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      alert('Employee added successfully!');
+      alert(t("addEmployee.success"));
 
       setFormData({
         name: '',
@@ -72,7 +74,7 @@ export default function AddEmployee() {
 
     } catch (error) {
       console.error('Error:', error.response?.data || error.message);
-      alert('Failed to add employee');
+      alert(t("addEmployee.failed"));
     } finally {
       setLoading(false);
     }
@@ -83,19 +85,19 @@ export default function AddEmployee() {
       <div className="w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
         
         <div className="bg-blue-500 px-6 py-4">
-          <h1 className="text-white text-2xl font-semibold">Employee Management</h1>
+          <h1 className="text-white text-2xl font-semibold">{t("addEmployee.title")}</h1>
         </div>
 
         <div className="px-6 space-y-5">
 
-          <Input label="Name" name="name" value={formData.name} onChange={handleInputChange} />
-          <Input label="Email" name="email" value={formData.email} onChange={handleInputChange} type="email" />
+          <Input label={t("recentEmployees.name")} name="name" value={formData.name} onChange={handleInputChange} />
+          <Input label={t("recentEmployees.email")} name="email" value={formData.email} onChange={handleInputChange} type="email" />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input label="Phone" name="phone" value={formData.phone} onChange={handleInputChange} />
+            <Input label={t("recentEmployees.phone")} name="phone" value={formData.phone} onChange={handleInputChange} />
 
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-2">Password</label>
+              <label className="block text-gray-700 text-sm font-medium mb-2">{t("auth.signIn.password")}</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -118,7 +120,7 @@ export default function AddEmployee() {
           {/* Image Upload */}
           <div>
             <label className="block text-gray-700 text-sm font-medium mb-2">
-              Profile Image
+              {t("addEmployee.profileImage")}
             </label>
             <div className="border rounded-md p-8 bg-gray-50">
               <input
@@ -138,7 +140,7 @@ export default function AddEmployee() {
                 ) : (
                   <>
                     <Upload className="w-10 h-10 text-gray-400 mb-2" />
-                    <span className="text-gray-500 text-sm">Upload Image</span>
+                    <span className="text-gray-500 text-sm">{t("addEmployee.uploadImage")}</span>
                   </>
                 )}
               </label>
@@ -150,7 +152,7 @@ export default function AddEmployee() {
             onClick={handleSubmit}
             className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Adding...' : 'Add'}
+            {loading ? t("addEmployee.adding") : t("addEmployee.add")}
           </button>
 
         </div>

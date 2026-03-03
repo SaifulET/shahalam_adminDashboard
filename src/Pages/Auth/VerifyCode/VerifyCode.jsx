@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import brandlogo from "../../../assets/image/logo.svg";
 import api from "../../../lib/api";
 import { useAuthStore } from "../../../store/authStore";
+import { useI18n } from "../../../i18n/I18nProvider";
 
 const VerifyCode = () => {
+  const { t } = useI18n();
   const [code, setCode] = useState(["", "", "", ""]); // 4-digit code
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -27,12 +29,12 @@ const VerifyCode = () => {
   // Redirect if no email in store
   useEffect(() => {
     if (!email) {
-      setError("Session expired. Please try again from forgot password.");
+      setError(t("auth.verify.sessionExpired"));
       setTimeout(() => {
         navigate("/forgot-password");
       }, 2000);
     }
-  }, [email, navigate]);
+  }, [email, navigate, t]);
 
   const handleChange = (index, value) => {
     if (value && !/^\d+$/.test(value)) return;
@@ -56,7 +58,7 @@ const VerifyCode = () => {
     e.preventDefault();
     
     if (!email) {
-      setError("Email not found. Please try again.");
+      setError(t("auth.verify.emailMissing"));
       navigate("/forgot-password");
       return;
     }
@@ -77,7 +79,7 @@ const VerifyCode = () => {
       inputRefs.current[0]?.focus();
       
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to resend code. Please try again.");
+      setError(err.response?.data?.message || t("auth.verify.resendFailed"));
      
     }
   };
@@ -89,13 +91,13 @@ const VerifyCode = () => {
 
     // Validate code
     if (verificationCode.length !== 4) {
-      setError("Please enter complete 4-digit code");
+      setError(t("auth.verify.codeIncomplete"));
       return;
     }
 
     // Check if email exists
     if (!email) {
-      setError("Email not found. Please restart the process.");
+      setError(t("auth.verify.emailMissingRestart"));
       setTimeout(() => {
         navigate("/forgot-password");
       }, 2000);
@@ -116,7 +118,7 @@ const VerifyCode = () => {
       navigate("/new-password");
       
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid verification code. Please try again.");
+      setError(err.response?.data?.message || t("auth.verify.invalidCode"));
       
       // Clear code inputs on error
       setCode(["", "", "", ""]);
@@ -134,7 +136,7 @@ const VerifyCode = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#f9fafb]">
         <div className="text-center p-8 bg-white rounded-2xl">
-          <p className="text-gray-600">{error || "Redirecting to forgot password..."}</p>
+          <p className="text-gray-600">{error || t("auth.verify.redirecting")}</p>
         </div>
       </div>
     );
@@ -147,12 +149,12 @@ const VerifyCode = () => {
           <div className="flex justify-center">
             <img className="w-40 h-40" src={brandlogo} alt="brandlogo" />
           </div>
-          <h1 className="text-2xl font-medium">Verify Your Code</h1>
+          <h1 className="text-2xl font-medium">{t("auth.verify.title")}</h1>
           <p className="mt-4">
-            We sent a reset link to{" "}
+            {t("auth.verify.description")}{" "}
             <span className="font-medium text-gray-700">{email}</span>
             <br />
-            Enter the 4-digit code mentioned in the email
+            {t("auth.verify.descriptionSuffix")}
           </p>
 
           {/* Error message */}
@@ -184,14 +186,14 @@ const VerifyCode = () => {
             </div>
             
             <div className="flex items-center justify-between py-2">
-              <p className="text-gray-500">Didn't receive the email?</p>
+              <p className="text-gray-500">{t("auth.verify.didNotReceive")}</p>
               <button
                 type="button"
                 onClick={handleResend}
                 
                 className={`text-sky-400 hover:text-sky-500 focus:outline-none`}
               >
-              Resend
+              {t("auth.verify.resend")}
               </button>
             </div>
 
@@ -200,7 +202,7 @@ const VerifyCode = () => {
               
               className={`py-3 px-20 w-full mt-8 text-white transition-colors rounded-md bg-[#71ABE0] focus:outline-none focus:ring-2 focus:ring-sky-300 focus:ring-offset-2 `}
             >
-              {loading ? 'Verifying...' : 'Verify Code'}
+              {loading ? t("auth.verify.verifying") : t("auth.verify.submit")}
             </button>
           </form>
         </div>

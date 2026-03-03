@@ -5,12 +5,14 @@ import { CiUser } from "react-icons/ci";
 import { FaEdit } from "react-icons/fa";
 import { MdPrivacyTip } from "react-icons/md";
 import { RiTerminalWindowLine } from "react-icons/ri";
+import { useI18n } from "../../i18n/I18nProvider";
 
 const Settings = () => {
+  const { t } = useI18n();
   const subItems = [
     {
       icon: <CiUser className="w-5 h-5" />,
-      label: "Change Password",
+      label: t("settings.changePassword"),
       link: "/settings/change-password",
     }
   ];
@@ -23,7 +25,7 @@ const Settings = () => {
       >
         {/* Header */}
         <div className="px-6 py-8  bg-[#71ABE0] rounded-tl-md rounded-tr-md ">
-          <h1 className="text-2xl font-semibold text-white">Settings</h1>
+          <h1 className="text-2xl font-semibold text-white">{t("settings.title")}</h1>
         </div>
 
         {/* ==========================Menu Items ==========================*/}
