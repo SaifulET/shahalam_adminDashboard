@@ -3,8 +3,8 @@ import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 import { getEffectiveLocale } from "../i18n/config";
 
-const apiBaseUrl = "https://api.ur-wsl.com";
-// const apiBaseUrl = "http://localhost:5001";
+// const apiBaseUrl = "https://api.ur-wsl.com";
+const apiBaseUrl = "http://localhost:5001";
 
 const api = axios.create({
   baseURL: apiBaseUrl,
@@ -32,6 +32,35 @@ const TRANSLATABLE_FIELDS = new Set([
   "phone",
   "postalCode",
 ]);
+
+const ARABIC_LETTER_MAP = {
+  a: "ا",
+  b: "ب",
+  c: "ك",
+  d: "د",
+  e: "ي",
+  f: "ف",
+  g: "ج",
+  h: "ه",
+  i: "ي",
+  j: "ج",
+  k: "ك",
+  l: "ل",
+  m: "م",
+  n: "ن",
+  o: "و",
+  p: "ب",
+  q: "ق",
+  r: "ر",
+  s: "س",
+  t: "ت",
+  u: "و",
+  v: "ف",
+  w: "و",
+  x: "كس",
+  y: "ي",
+  z: "ز",
+};
 
 const normalizeLocalizedPayload = (payload, locale) => {
   if (Array.isArray(payload)) {
@@ -73,6 +102,16 @@ const shouldTranslateValue = (key, value, locale) => {
   if (!trimmed) return false;
   if (ARABIC_TEXT_REGEX.test(trimmed)) return false;
   return true;
+};
+
+const transliterateLatinToArabic = (text) => {
+  return text.replace(/[A-Za-z]+/g, (token) => {
+    return token
+      .toLowerCase()
+      .split("")
+      .map((ch) => ARABIC_LETTER_MAP[ch] || ch)
+      .join("");
+  });
 };
 
 const collectTextsToTranslate = (payload, locale, bucket = new Set()) => {
@@ -123,12 +162,19 @@ const translateOneText = async (text, target) => {
       .join("")
       .trim();
 
-    const finalText = translated || text;
+    let finalText = translated || text;
+    if (target === "ar" && finalText === text && /^[A-Za-z\s]+$/.test(text)) {
+      finalText = transliterateLatinToArabic(text);
+    }
     translationCache.set(cacheKey, finalText);
     return finalText;
   } catch {
-    translationCache.set(cacheKey, text);
-    return text;
+    const fallback =
+      target === "ar" && /^[A-Za-z\s]+$/.test(text)
+        ? transliterateLatinToArabic(text)
+        : text;
+    translationCache.set(cacheKey, fallback);
+    return fallback;
   }
 };
 

@@ -43,6 +43,27 @@
     "active": "Active",
     "deleteConfirm": "Are you sure you want to delete this project?"
   },
+  "projectDetails": {
+    "loading": "Loading...",
+    "loadFailed": "Failed to load project data",
+    "buildingAlt": "Building",
+    "location": "Location",
+    "createdDate": "Created Date",
+    "projectName": "Project Name",
+    "totalFloors": "Total Floors",
+    "unitsLayout": "Units & Floor Layout",
+    "unitsCount": "{{count}} units",
+    "noUnitsForFloor": "No units found for this floor",
+    "available": "Available",
+    "reserved": "Reserved",
+    "sold": "Sold",
+    "projectModels": "Project Models",
+    "modelName": "Model Name",
+    "area": "Area",
+    "sqft": "sqft",
+    "face": "Face",
+    "noModels": "No models available"
+  },
   "recentEmployees": {
     "title": "Recent Employees",
     "empty": "No employees found",

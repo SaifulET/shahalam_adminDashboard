@@ -38,7 +38,7 @@ const RecentUsersTable = () => {
     if (user?.id) {
       fetchEmployees()
     }
-  }, [user])
+  }, [user, locale])
 
   // ===================== Handlers =====================
   const handleViewUser = (employee) => {

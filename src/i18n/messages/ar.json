@@ -214,5 +214,26 @@
       "updateFailed": "فشل تحديث كلمة المرور. حاول مرة أخرى.",
       "redirecting": "جار التحويل إلى صفحة نسيت كلمة المرور..."
     }
+  },
+  "projectDetails": {
+    "loading": "جار التحميل...",
+    "loadFailed": "فشل تحميل بيانات المشروع",
+    "buildingAlt": "مبنى",
+    "location": "الموقع",
+    "createdDate": "تاريخ الإنشاء",
+    "projectName": "اسم المشروع",
+    "totalFloors": "إجمالي الطوابق",
+    "unitsLayout": "الوحدات وتخطيط الطوابق",
+    "unitsCount": "{{count}} وحدة",
+    "noUnitsForFloor": "لا توجد وحدات لهذا الطابق",
+    "available": "متاح",
+    "reserved": "محجوز",
+    "sold": "مباع",
+    "projectModels": "نماذج المشروع",
+    "modelName": "اسم النموذج",
+    "area": "المساحة",
+    "sqft": "قدم²",
+    "face": "الواجهة",
+    "noModels": "لا توجد نماذج"
   }
 }

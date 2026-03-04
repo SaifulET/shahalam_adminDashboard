@@ -36,7 +36,7 @@ const userId = user?.id;
     }
 
     fetchDashboard();
-  }, [userId]);
+  }, [userId, locale]);
 
   return (
     <div className="bg-gray-50 py-8">

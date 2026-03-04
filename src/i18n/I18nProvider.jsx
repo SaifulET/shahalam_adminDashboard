@@ -7,6 +7,7 @@ import {
   getLocaleDirection,
   isAdminPath,
   isSupportedLocale,
+  normalizeLocale,
   setSavedLocale,
 } from "./config";
 import LanguageSwitcher from "../Components/i18n/LanguageSwitcher";
@@ -70,8 +71,9 @@ export function I18nProvider({ children }) {
 
   useEffect(() => {
     const handleLanguageChanged = (nextLanguage) => {
-      if (isSupportedLocale(nextLanguage)) {
-        setLocaleState(nextLanguage);
+      const normalized = normalizeLocale(nextLanguage);
+      if (isSupportedLocale(normalized)) {
+        setLocaleState(normalized);
       }
     };
 
@@ -106,12 +108,14 @@ export function I18nProvider({ children }) {
   }, [direction, locale]);
 
   const setLocale = (nextLocale) => {
-    if (isAdminRoute || !isSupportedLocale(nextLocale)) {
+    const normalized = normalizeLocale(nextLocale);
+    if (isAdminRoute || !isSupportedLocale(normalized)) {
       return;
     }
 
-    setSavedLocale(nextLocale);
-    i18n.changeLanguage(nextLocale);
+    setSavedLocale(normalized);
+    setLocaleState(normalized);
+    i18n.changeLanguage(normalized);
   };
 
   const value = useMemo(
