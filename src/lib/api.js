@@ -3,8 +3,8 @@ import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 import { getEffectiveLocale } from "../i18n/config";
 
-// const apiBaseUrl = "https://api.ur-wsl.com";
-const apiBaseUrl = "http://localhost:5001";
+const apiBaseUrl = "https://api.ur-wsl.com";
+// const apiBaseUrl = "http://localhost:5001";
 
 const api = axios.create({
   baseURL: apiBaseUrl,
