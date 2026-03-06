@@ -7,7 +7,7 @@ RUN npm ci
 
 COPY . .
 
-ARG VITE_API_URL=http://localhost:5001
+ARG VITE_API_URL=https://ur-wsl.com
 ENV VITE_API_URL=$VITE_API_URL
 
 RUN npm run build
