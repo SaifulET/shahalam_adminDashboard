@@ -6,6 +6,7 @@ import { Bell, MessageSquareMore } from "lucide-react";
 import adminImage from "../../assets/image/adminkickclick.jpg";
 import { useAuthStore } from "../../store/authStore";
 import { useI18n } from "../../i18n/I18nProvider";
+import LanguageSwitcher from "../i18n/LanguageSwitcher";
 
 const Header = ({ showDrawer }) => {
  const user = useAuthStore().user
@@ -43,6 +44,7 @@ const Header = ({ showDrawer }) => {
 
         {/* =============================Right Section============================= */}
         <div className="flex items-center gap-4">
+          <LanguageSwitcher />
           {/* Message Icon */}
          
 

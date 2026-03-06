@@ -10,7 +10,6 @@ import {
   normalizeLocale,
   setSavedLocale,
 } from "./config";
-import LanguageSwitcher from "../Components/i18n/LanguageSwitcher";
 import "./i18n";
 
 const I18nContext = createContext({
@@ -126,7 +125,6 @@ export function I18nProvider({ children }) {
   return (
     <I18nContext.Provider value={value}>
       <ConfigProvider direction={direction}>{children}</ConfigProvider>
-      <LanguageSwitcher />
     </I18nContext.Provider>
   );
 }
