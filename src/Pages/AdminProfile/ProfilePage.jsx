@@ -96,15 +96,13 @@ function ProfilePage() {
           {/* Profile Picture */}
           <div className="mt-10">
             <div className="w-[122px] relative h-[122px] mx-auto rounded-full border-4 shadow-xl flex justify-center items-center">
-              <img
-                src={
-                  profilePic || // Preview image takes priority
-                  user?.profileImage || // Then user's profile image from store
-                  "/profile.jpg" // Finally default image
-                }
-                alt="profile"
-                className="w-32 h-32 rounded-full object-cover"
-              />
+              {(profilePic || user?.profileImage) && (
+                <img
+                  src={profilePic || user?.profileImage}
+                  alt="profile"
+                  className="w-32 h-32 rounded-full object-cover"
+                />
+              )}
 
               <div className={`absolute right-0 p-2 bg-white rounded-full shadow-md cursor-pointer bottom-2 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
                 <label htmlFor="profilePicUpload" className="cursor-pointer">

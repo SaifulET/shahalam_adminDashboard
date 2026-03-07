@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Search, Eye, Ban, ChevronLeft, ChevronRight, X } from "lucide-react"
+import { Search, Eye, Ban, Trash2, ChevronLeft, ChevronRight, X } from "lucide-react"
 import { Link } from "react-router-dom"
 import api from "../../lib/api"
 import { useAuthStore } from "../../store/authStore"
@@ -19,6 +19,7 @@ const UserList = () => {
   const [selectedUser, setSelectedUser] = useState(null)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const [userToBlock, setUserToBlock] = useState(null)
+  const [deletingUserId, setDeletingUserId] = useState(null)
 
   const usersPerPage = 8
 
@@ -104,6 +105,27 @@ const UserList = () => {
   const handleCancelBlock = () => {
     setIsConfirmModalOpen(false)
     setUserToBlock(null)
+  }
+
+  const handleDeleteUser = async (employee) => {
+    const isConfirmed = window.confirm(`Delete ${employee.name}?`)
+    if (!isConfirmed) return
+
+    try {
+      setDeletingUserId(employee._id)
+      await api.delete(`/employees/${employee._id}`)
+      setUsers((prevUsers) => prevUsers.filter((item) => item._id !== employee._id))
+
+      if (isModalOpen && selectedUser?._id === employee._id) {
+        setIsModalOpen(false)
+        setSelectedUser(null)
+      }
+    } catch (error) {
+      console.error("Delete failed:", error)
+      alert("Failed to delete employee")
+    } finally {
+      setDeletingUserId(null)
+    }
   }
 
   const formatDate = (dateString) => {
@@ -254,6 +276,14 @@ const UserList = () => {
                                 disabled={user.status === 'blocked'}
                               >
                                 <Ban className="w-4 h-4" />
+                              </button>
+
+                              <button
+                                onClick={() => handleDeleteUser(user)}
+                                className="p-1 text-red-600 rounded-full hover:bg-red-50 disabled:opacity-50"
+                                disabled={deletingUserId === user._id}
+                              >
+                                <Trash2 className="w-4 h-4" />
                               </button>
 
                               <button

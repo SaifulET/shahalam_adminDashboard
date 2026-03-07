@@ -1,15 +1,18 @@
 import React from "react";
-import { Link,  } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { IoMdNotificationsOutline } from "react-icons/io";
-import { Bell, MessageSquareMore } from "lucide-react";
+import { Bell, LogOut, MessageSquareMore } from "lucide-react";
 import adminImage from "../../assets/image/adminkickclick.jpg";
 import { useAuthStore } from "../../store/authStore";
 import { useI18n } from "../../i18n/I18nProvider";
 import LanguageSwitcher from "../i18n/LanguageSwitcher";
+import api from "../../lib/api";
 
 const Header = ({ showDrawer }) => {
  const user = useAuthStore().user
+ const logout = useAuthStore((state) => state.logout)
+ const navigate = useNavigate()
  const { t } = useI18n();
 
  const adminProfile = {
@@ -18,7 +21,16 @@ const Header = ({ showDrawer }) => {
     profile: user?.profileImage || adminImage,
   };
 
- 
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout")
+    } catch (error) {
+      console.error("Logout failed:", error)
+    } finally {
+      logout()
+      navigate("/sign-in", { replace: true })
+    }
+  }
 
   
 
@@ -48,6 +60,13 @@ const Header = ({ showDrawer }) => {
           {/* Message Icon */}
          
 
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1 px-3 py-2 text-sm text-red-600 transition border border-red-500 rounded-full hover:bg-red-50"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </button>
 
           {/* Profile Icon */}
           <Link to="/settings/profile" >

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Search, Eye, Ban, ChevronLeft, ChevronRight, X } from "lucide-react"
+import { Search, Eye, Ban, Trash2, ChevronLeft, ChevronRight, X } from "lucide-react"
 import { Link } from "react-router-dom"
 import api from "../../../../lib/api"
 import { useAuthStore } from "../../../../store/authStore"
@@ -17,6 +17,7 @@ const AdminList = () => {
   const [error, setError] = useState(null)
   const [totalUsers, setTotalUsers] = useState(0)
   const [viewUserLoading, setViewUserLoading] = useState(false)
+  const [deletingAdminId, setDeletingAdminId] = useState(null)
 
   const usersPerPage = 8
 
@@ -117,6 +118,28 @@ const AdminList = () => {
   const handleCancelBlock = () => {
     setIsConfirmModalOpen(false)
     setUserToBlock(null)
+  }
+
+  const handleDeleteAdmin = async (admin) => {
+    const isConfirmed = window.confirm(`Delete ${admin.name}?`)
+    if (!isConfirmed) return
+
+    try {
+      setDeletingAdminId(admin._id)
+      await api.delete(`/auth/${admin._id}`)
+      setUsers((prevUsers) => prevUsers.filter((item) => item._id !== admin._id))
+      setTotalUsers((prevTotal) => Math.max(0, prevTotal - 1))
+
+      if (isModalOpen && selectedUser?._id === admin._id) {
+        setIsModalOpen(false)
+        setSelectedUser(null)
+      }
+    } catch (err) {
+      console.error("Error deleting admin:", err)
+      alert(err.response?.data?.message || "Failed to delete admin")
+    } finally {
+      setDeletingAdminId(null)
+    }
   }
 
   const totalPages = Math.ceil(totalUsers / usersPerPage)
@@ -264,6 +287,14 @@ const AdminList = () => {
                                 disabled={user.status === 'blocked'}
                               >
                                 <Ban className="w-4 h-4" />
+                              </button>
+
+                              <button
+                                onClick={() => handleDeleteAdmin(user)}
+                                className="p-1 text-red-600 rounded-full hover:bg-red-50 disabled:opacity-50"
+                                disabled={deletingAdminId === user._id}
+                              >
+                                <Trash2 className="w-4 h-4" />
                               </button>
 
                               <button

@@ -73,7 +73,7 @@ const userId = user?.id;
               return (
                 <div
                   key={index}
-                  className="bg-white rounded-2xl shadow-sm p-8 hover:shadow-md transition-shadow cursor-pointer"
+                  className="bg-white rounded-2xl shadow-sm p-8   "
                 >
                   <div className={`${bgColors[index % bgColors.length]} w-16 h-16 rounded-2xl flex items-center justify-center mb-6`}>
                     <IconComponent className={`w-8 h-8 ${iconColors[index % iconColors.length]}`} />

@@ -1,14 +1,16 @@
 import React from "react";
-import { Link,  } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { IoMdNotificationsOutline } from "react-icons/io";
-import { Bell, MessageSquareMore } from "lucide-react";
-import adminImage from "../../../assets/image/adminkickclick.jpg";
+import { Bell, LogOut, MessageSquareMore } from "lucide-react";
 import { useAuthStore } from "../../../store/authStore";
+import api from "../../../lib/api";
 
 const AdminHeader = ({ showDrawer }) => {
   
   const user = useAuthStore().user
+  const logout = useAuthStore((state) => state.logout)
+  const navigate = useNavigate()
  
   
 
@@ -16,7 +18,16 @@ const AdminHeader = ({ showDrawer }) => {
 
  
 
-  
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout")
+    } catch (error) {
+      console.error("Logout failed:", error)
+    } finally {
+      logout()
+      navigate("/admin/sign-in", { replace: true })
+    }
+  }
 
   return (
     <div className="relative mt-2">
@@ -42,16 +53,25 @@ const AdminHeader = ({ showDrawer }) => {
         <div className="flex items-center gap-4">
           {/* Message Icon */}
          
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1 px-3 py-2 text-sm text-red-600 transition border border-red-500 rounded-full hover:bg-red-50"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </button>
 
 
           {/* Profile Icon */}
           <Link to="/admin/settings/profile" >
           <div className="p-2 text-blue-700 transition border border-blue-500 rounded-full hover:bg-blue-50">
-            <img
-              src={user.profileImage || adminImage}
-              alt="Admin"
-              className="object-cover w-5 h-5 rounded-full"
-            />
+            {user?.profileImage && (
+              <img
+                src={user.profileImage}
+                alt="Admin"
+                className="object-cover w-5 h-5 rounded-full"
+              />
+            )}
           </div>
           </Link>
         </div>
