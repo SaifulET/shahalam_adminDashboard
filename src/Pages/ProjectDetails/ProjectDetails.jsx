@@ -63,6 +63,10 @@ const BuildingFloorLayout = () => {
   if (error) return <p className="text-center mt-32 text-red-600">{error}</p>;
 
   const selectedFloorData = floors.find(f => f._id === selectedFloor);
+  const formatOptionalNumber = (value) => {
+    if (value === null || value === undefined || value === "") return "-";
+    return formatLocalizedNumber(value, locale);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 mt-20">
@@ -225,6 +229,16 @@ const BuildingFloorLayout = () => {
                   <p className="text-sm text-gray-500 mb-1">{t("projectDetails.area")}</p>
                   <p className="text-gray-800 mb-3">
                     {formatLocalizedNumber(model.area, locale)} {t("projectDetails.sqft")}
+                  </p>
+
+                  <p className="text-sm text-gray-500 mb-1">{t("projectDetails.price")}</p>
+                  <p className="text-gray-800 mb-3">
+                    {formatOptionalNumber(model.model_price)}
+                  </p>
+
+                  <p className="text-sm text-gray-500 mb-1">{t("projectDetails.roomsNumber")}</p>
+                  <p className="text-gray-800 mb-3">
+                    {formatOptionalNumber(model.rooms_number)}
                   </p>
 
                   <p className="text-sm text-gray-500 mb-1">{t("projectDetails.face")}</p>

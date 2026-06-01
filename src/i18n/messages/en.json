@@ -61,6 +61,8 @@
     "modelName": "Model Name",
     "area": "Area",
     "sqft": "sqft",
+    "price": "Price",
+    "roomsNumber": "Room Number",
     "face": "Face",
     "noModels": "No models available"
   },
